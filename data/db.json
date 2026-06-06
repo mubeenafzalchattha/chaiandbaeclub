@@ -1,0 +1,134 @@
+{
+  "events": [
+    {
+      "id": "painting-planting-2026",
+      "title": "Painting & Planting Workshop",
+      "description": "Design your own custom clay pot, plant your new leafy green buddy, and relax in a beautifully curated creative space with the best aesthetic vibes.",
+      "date": "Sunday, June 7",
+      "time": "4:00 PM - 6:30 PM",
+      "location": "Secret Garden Cafe, Jumeirah, Dubai",
+      "price": 180,
+      "deadline": "2026-06-30T14:07:00.000Z",
+      "maxSlots": 15,
+      "image": "https://images.unsplash.com/photo-1513364776144-60967b0f800f?q=80&w=800",
+      "status": "active"
+    },
+    {
+      "id": "past-game-night",
+      "title": "Dubai Game Night",
+      "description": "An evening of board games, laughter, and high energy. Baddies only, with custom drinks, snacks, and wonderful conversations.",
+      "date": "Saturday, May 16, 2026",
+      "time": "7:00 PM onwards",
+      "location": "Palm Jumeirah Villa, Dubai",
+      "price": 120,
+      "deadline": "2026-05-15T18:00:00.000Z",
+      "maxSlots": 20,
+      "image": "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?q=80&w=800",
+      "status": "completed",
+      "instagramUrl": "https://www.instagram.com/chaiandbaeclub/"
+    },
+    {
+      "id": "past-jam-session",
+      "title": "Jam Session Alert",
+      "description": "Unplugged music, cozy seating, hot chai, and gorgeous acoustic tunes. Connect over your favorite beats and sing along with the girlies.",
+      "date": "Friday, April 17, 2026",
+      "time": "9:00 PM - 11:00 PM",
+      "location": "Sukkar Cafe, Sharjah",
+      "price": 90,
+      "deadline": "2026-04-16T18:00:00.000Z",
+      "maxSlots": 12,
+      "image": "https://images.unsplash.com/photo-1511192336575-5a79af67a629?q=80&w=800",
+      "status": "completed",
+      "instagramUrl": "https://www.instagram.com/chaiandbaeclub/"
+    },
+    {
+      "id": "past-girls-night-out",
+      "title": "Girls Night Out: Games & Vibes",
+      "description": "A super cozy, laughter-filled night of team games, trivia, and community building, enjoying fresh pastries and mocktails.",
+      "date": "Friday, April 3, 2026",
+      "time": "9:00 PM - 11:00 PM",
+      "location": "Sukkar Cafe, Sharjah",
+      "price": 85,
+      "deadline": "2026-04-02T18:00:00.000Z",
+      "maxSlots": 15,
+      "image": "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=800",
+      "status": "completed",
+      "instagramUrl": "https://www.instagram.com/chaiandbaeclub/"
+    }
+  ],
+  "bookings": [
+    {
+      "id": "CBB-FT07I",
+      "eventId": "painting-planting-2026",
+      "name": "cc",
+      "email": "test3@example.com",
+      "whatsapp": "+971567989898",
+      "status": "paid",
+      "createdAt": "2026-06-06T12:28:38.763Z",
+      "amount": 180,
+      "paymentId": "ziina_sim_F57G156G"
+    },
+    {
+      "id": "CBB-7FFUA",
+      "eventId": "painting-planting-2026",
+      "name": "test msj",
+      "email": "test3@example.com",
+      "whatsapp": "+971555555555",
+      "status": "pending",
+      "createdAt": "2026-06-06T12:42:00.520Z",
+      "amount": 180
+    },
+    {
+      "id": "CBB-1U7TA",
+      "eventId": "painting-planting-2026",
+      "name": "test",
+      "email": "test3@example.com",
+      "whatsapp": "+971555555555",
+      "status": "paid",
+      "createdAt": "2026-06-06T12:46:14.136Z",
+      "amount": 180,
+      "paymentId": "ziina_sim_PLZHC93P"
+    },
+    {
+      "id": "CBB-8NF0M",
+      "eventId": "painting-planting-2026",
+      "name": "Mubeen",
+      "email": "test3@example.com",
+      "whatsapp": "+971555555555",
+      "status": "pending",
+      "createdAt": "2026-06-06T12:59:12.763Z",
+      "amount": 180
+    },
+    {
+      "id": "CBB-J2QXZ",
+      "eventId": "painting-planting-2026",
+      "name": "Mubeen",
+      "email": "test3@example.com",
+      "whatsapp": "+971555555555",
+      "status": "pending",
+      "createdAt": "2026-06-06T13:03:22.376Z",
+      "amount": 180
+    },
+    {
+      "id": "CBB-BKIS0",
+      "eventId": "painting-planting-2026",
+      "name": "Mubeen",
+      "email": "test3@example.com",
+      "whatsapp": "+971555555555",
+      "status": "paid",
+      "createdAt": "2026-06-06T13:16:59.025Z",
+      "amount": 180,
+      "paymentId": "ziina_live_1780751893882"
+    },
+    {
+      "id": "CBB-E0ZQA",
+      "eventId": "painting-planting-2026",
+      "name": "Mubeen",
+      "email": "test3@example.com",
+      "whatsapp": "+971555555555",
+      "status": "pending",
+      "createdAt": "2026-06-06T13:22:22.330Z",
+      "amount": 180
+    }
+  ]
+}
