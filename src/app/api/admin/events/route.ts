@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const events = db.getEvents();
+    const events = await db.getEvents();
     // Sort: active first, then by date descending
     const sorted = [...events].sort((a, b) => {
       if (a.status === "active") return -1;
@@ -45,12 +45,12 @@ export async function POST(req: NextRequest) {
 
     // If making this event active, set all previous active events as completed
     if (status === "active") {
-      const currentEvents = db.getEvents();
-      currentEvents.forEach(e => {
+      const currentEvents = await db.getEvents();
+      for (const e of currentEvents) {
         if (e.status === "active" && e.id !== eventId) {
-          db.updateEvent(e.id, { status: "completed" });
+          await db.updateEvent(e.id, { status: "completed" });
         }
-      });
+      }
     }
 
     const eventObj = {
@@ -67,10 +67,10 @@ export async function POST(req: NextRequest) {
       status: status || "active"
     };
 
-    const success = db.createEvent(eventObj);
+    const success = await db.createEvent(eventObj);
 
     if (!success) {
-      throw new Error("Local JSON database save failed.");
+      throw new Error("Local MongoDB database save failed.");
     }
 
     return NextResponse.json({
@@ -99,7 +99,7 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ message: "Event ID parameter is required." }, { status: 400 });
     }
 
-    const success = db.deleteEvent(eventId);
+    const success = await db.deleteEvent(eventId);
     if (!success) {
       return NextResponse.json({ message: "Unable to delete event from database." }, { status: 404 });
     }

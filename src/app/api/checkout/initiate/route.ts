@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 3. Fetch event details
-    const event = db.getEventById(eventId);
+    const event = await db.getEventById(eventId);
     if (!event || event.status !== "active") {
       return NextResponse.json(
         { message: "Selected event is not active or does not exist." },
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const bookings = db.getBookingsByEventId(eventId);
+    const bookings = await db.getBookingsByEventId(eventId);
     const paidCount = bookings.filter((b) => b.status === "paid").length;
     if (paidCount >= event.maxSlots) {
       return NextResponse.json(
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
     const bookingId = generateBookingId();
 
     // 6. Record pending booking in the JSON DB
-    const success = db.createBooking({
+    const success = await db.createBooking({
       id: bookingId,
       eventId,
       name,

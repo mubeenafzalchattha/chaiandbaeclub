@@ -10,14 +10,14 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
   const { id } = await params;
   
   // Fetch event details
-  const event = db.getEventById(id);
+  const event = await db.getEventById(id);
   
   if (!event || event.status !== "active") {
     return notFound();
   }
 
   // Count active reservations
-  const bookings = db.getBookingsByEventId(id);
+  const bookings = await db.getBookingsByEventId(id);
   const paidCount = bookings.filter(b => b.status === "paid").length;
   const isSoldOut = paidCount >= event.maxSlots;
   const isDeadlinePassed = new Date(event.deadline).getTime() < Date.now();

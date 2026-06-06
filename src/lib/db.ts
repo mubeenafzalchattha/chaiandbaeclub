@@ -1,5 +1,4 @@
-import fs from "fs";
-import path from "path";
+import { MongoClient, Db } from "mongodb";
 
 export interface Event {
   id: string;
@@ -28,184 +27,181 @@ export interface Booking {
   paymentId?: string;
 }
 
-interface DatabaseSchema {
-  events: Event[];
-  bookings: Booking[];
-}
+const uri = process.env.MONGODB_URI || "mongodb://localhost:27017/chaiandbaeclub";
+let client: MongoClient;
+let dbInstance: Db;
 
-const DB_DIR = path.join(process.cwd(), "data");
-const DB_FILE = path.join(DB_DIR, "db.json");
+async function getDb(): Promise<Db> {
+  if (dbInstance) return dbInstance;
 
-// Helper to secure directory and file initialization
-function initDb() {
-  if (!fs.existsSync(DB_DIR)) {
-    fs.mkdirSync(DB_DIR, { recursive: true });
+  if (!client) {
+    client = new MongoClient(uri);
+    await client.connect();
   }
 
-  if (!fs.existsSync(DB_FILE)) {
-    // Generate default/sample data
-    const initialData: DatabaseSchema = {
-      events: [
-        {
-          id: "painting-planting-2026",
-          title: "Painting & Planting Workshop",
-          description: "Design your own custom clay pot, plant your new leafy green buddy, and relax in a beautifully curated creative space with the best aesthetic vibes.",
-          date: "Sunday, June 7",
-          time: "4:00 PM - 6:30 PM",
-          location: "Secret Garden Cafe, Jumeirah, Dubai",
-          price: 180,
-          // Set booking deadline to 5 days from now (default mock)
-          deadline: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
-          maxSlots: 15,
-          image: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?q=80&w=800",
-          status: "active"
-        },
-        {
-          id: "past-game-night",
-          title: "Dubai Game Night",
-          description: "An evening of board games, laughter, and high energy. Baddies only, with custom drinks, snacks, and wonderful conversations.",
-          date: "Saturday, May 16, 2026",
-          time: "7:00 PM onwards",
-          location: "Palm Jumeirah Villa, Dubai",
-          price: 120,
-          deadline: "2026-05-15T18:00:00.000Z",
-          maxSlots: 20,
-          image: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?q=80&w=800",
-          status: "completed",
-          instagramUrl: "https://www.instagram.com/chaiandbaeclub/"
-        },
-        {
-          id: "past-jam-session",
-          title: "Jam Session Alert",
-          description: "Unplugged music, cozy seating, hot chai, and gorgeous acoustic tunes. Connect over your favorite beats and sing along with the girlies.",
-          date: "Friday, April 17, 2026",
-          time: "9:00 PM - 11:00 PM",
-          location: "Sukkar Cafe, Sharjah",
-          price: 90,
-          deadline: "2026-04-16T18:00:00.000Z",
-          maxSlots: 12,
-          image: "https://images.unsplash.com/photo-1511192336575-5a79af67a629?q=80&w=800",
-          status: "completed",
-          instagramUrl: "https://www.instagram.com/chaiandbaeclub/"
-        },
-        {
-          id: "past-girls-night-out",
-          title: "Girls Night Out: Games & Vibes",
-          description: "A super cozy, laughter-filled night of team games, trivia, and community building, enjoying fresh pastries and mocktails.",
-          date: "Friday, April 3, 2026",
-          time: "9:00 PM - 11:00 PM",
-          location: "Sukkar Cafe, Sharjah",
-          price: 85,
-          deadline: "2026-04-02T18:00:00.000Z",
-          maxSlots: 15,
-          image: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=800",
-          status: "completed",
-          instagramUrl: "https://www.instagram.com/chaiandbaeclub/"
-        }
-      ],
-      bookings: []
-    };
-
-    fs.writeFileSync(DB_FILE, JSON.stringify(initialData, null, 2), "utf8");
-  }
+  dbInstance = client.db();
+  await seedDb(dbInstance);
+  return dbInstance;
 }
 
-export function readDb(): DatabaseSchema {
-  initDb();
-  try {
-    const data = fs.readFileSync(DB_FILE, "utf8");
-    return JSON.parse(data) as DatabaseSchema;
-  } catch (err) {
-    console.error("Error reading JSON database:", err);
-    return { events: [], bookings: [] };
+async function seedDb(db: Db) {
+  const eventsCollection = db.collection("events");
+  const count = await eventsCollection.countDocuments();
+  if (count === 0) {
+    const initialEvents: Event[] = [
+      {
+        id: "painting-planting-2026",
+        title: "Painting & Planting Workshop",
+        description: "Design your own custom clay pot, plant your new leafy green buddy, and relax in a beautifully curated creative space with the best aesthetic vibes.",
+        date: "Sunday, June 7",
+        time: "4:00 PM - 6:30 PM",
+        location: "Secret Garden Cafe, Jumeirah, Dubai",
+        price: 180,
+        deadline: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
+        maxSlots: 15,
+        image: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?q=80&w=800",
+        status: "active"
+      },
+      {
+        id: "past-game-night",
+        title: "Dubai Game Night",
+        description: "An evening of board games, laughter, and high energy. Baddies only, with custom drinks, snacks, and wonderful conversations.",
+        date: "Saturday, May 16, 2026",
+        time: "7:00 PM onwards",
+        location: "Palm Jumeirah Villa, Dubai",
+        price: 120,
+        deadline: "2026-05-15T18:00:00.000Z",
+        maxSlots: 20,
+        image: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?q=80&w=800",
+        status: "completed",
+        instagramUrl: "https://www.instagram.com/chaiandbaeclub/"
+      },
+      {
+        id: "past-jam-session",
+        title: "Jam Session Alert",
+        description: "Unplugged music, cozy seating, hot chai, and gorgeous acoustic tunes. Connect over your favorite beats and sing along with the girlies.",
+        date: "Friday, April 17, 2026",
+        time: "9:00 PM - 11:00 PM",
+        location: "Sukkar Cafe, Sharjah",
+        price: 90,
+        deadline: "2026-04-16T18:00:00.000Z",
+        maxSlots: 12,
+        image: "https://images.unsplash.com/photo-1511192336575-5a79af67a629?q=80&w=800",
+        status: "completed",
+        instagramUrl: "https://www.instagram.com/chaiandbaeclub/"
+      },
+      {
+        id: "past-girls-night-out",
+        title: "Girls Night Out: Games & Vibes",
+        description: "A super cozy, laughter-filled night of team games, trivia, and community building, enjoying fresh pastries and mocktails.",
+        date: "Friday, April 3, 2026",
+        time: "9:00 PM - 11:00 PM",
+        location: "Sukkar Cafe, Sharjah",
+        price: 85,
+        deadline: "2026-04-02T18:00:00.000Z",
+        maxSlots: 15,
+        image: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=800",
+        status: "completed",
+        instagramUrl: "https://www.instagram.com/chaiandbaeclub/"
+      }
+    ];
+    await eventsCollection.insertMany(initialEvents);
   }
 }
 
-export function writeDb(data: DatabaseSchema): boolean {
-  initDb();
-  try {
-    fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), "utf8");
-    return true;
-  } catch (err) {
-    console.error("Error writing JSON database:", err);
-    return false;
-  }
-}
-
-// Database Helpers
+// Database Helpers backed by MongoDB
 export const db = {
-  getEvents: (): Event[] => {
-    const data = readDb();
-    return data.events;
+  getEvents: async (): Promise<Event[]> => {
+    const database = await getDb();
+    const items = await database.collection("events").find({}).toArray();
+    return items.map(item => {
+      const { _id, ...rest } = item;
+      return rest as unknown as Event;
+    });
   },
 
-  getEventById: (id: string): Event | undefined => {
-    const data = readDb();
-    return data.events.find(e => e.id === id);
+  getEventById: async (id: string): Promise<Event | undefined> => {
+    const database = await getDb();
+    const item = await database.collection("events").findOne({ id });
+    if (!item) return undefined;
+    const { _id, ...rest } = item;
+    return rest as unknown as Event;
   },
 
-  createEvent: (event: Event): boolean => {
-    const data = readDb();
-    // Check if event already exists
-    const idx = data.events.findIndex(e => e.id === event.id);
-    if (idx !== -1) {
-      data.events[idx] = event; // Update
-    } else {
-      data.events.push(event); // Create
-    }
-    return writeDb(data);
+  createEvent: async (event: Event): Promise<boolean> => {
+    const database = await getDb();
+    await database.collection("events").updateOne(
+      { id: event.id },
+      { $set: event },
+      { upsert: true }
+    );
+    return true;
   },
 
-  updateEvent: (id: string, updatedFields: Partial<Event>): boolean => {
-    const data = readDb();
-    const idx = data.events.findIndex(e => e.id === id);
-    if (idx === -1) return false;
-    data.events[idx] = { ...data.events[idx], ...updatedFields };
-    return writeDb(data);
+  updateEvent: async (id: string, updatedFields: Partial<Event>): Promise<boolean> => {
+    const database = await getDb();
+    const res = await database.collection("events").updateOne(
+      { id },
+      { $set: updatedFields }
+    );
+    return res.modifiedCount > 0 || res.matchedCount > 0;
   },
 
-  deleteEvent: (id: string): boolean => {
-    const data = readDb();
-    data.events = data.events.filter(e => e.id !== id);
-    data.bookings = data.bookings.filter(b => b.eventId !== id); // Cascade delete bookings
-    return writeDb(data);
+  deleteEvent: async (id: string): Promise<boolean> => {
+    const database = await getDb();
+    await database.collection("events").deleteOne({ id });
+    await database.collection("bookings").deleteMany({ eventId: id });
+    return true;
   },
 
-  getBookings: (): Booking[] => {
-    const data = readDb();
-    return data.bookings;
+  getBookings: async (): Promise<Booking[]> => {
+    const database = await getDb();
+    const items = await database.collection("bookings").find({}).toArray();
+    return items.map(item => {
+      const { _id, ...rest } = item;
+      return rest as unknown as Booking;
+    });
   },
 
-  getBookingsByEventId: (eventId: string): Booking[] => {
-    const data = readDb();
-    return data.bookings.filter(b => b.eventId === eventId);
+  getBookingsByEventId: async (eventId: string): Promise<Booking[]> => {
+    const database = await getDb();
+    const items = await database.collection("bookings").find({ eventId }).toArray();
+    return items.map(item => {
+      const { _id, ...rest } = item;
+      return rest as unknown as Booking;
+    });
   },
 
-  getBookingById: (id: string): Booking | undefined => {
-    const data = readDb();
-    return data.bookings.find(b => b.id === id);
+  getBookingById: async (id: string): Promise<Booking | undefined> => {
+    const database = await getDb();
+    const item = await database.collection("bookings").findOne({ id });
+    if (!item) return undefined;
+    const { _id, ...rest } = item;
+    return rest as unknown as Booking;
   },
 
-  createBooking: (booking: Booking): boolean => {
-    const data = readDb();
-    data.bookings.push(booking);
-    return writeDb(data);
+  createBooking: async (booking: Booking): Promise<boolean> => {
+    const database = await getDb();
+    await database.collection("bookings").insertOne(booking);
+    return true;
   },
 
-  updateBookingStatus: (id: string, status: "pending" | "paid" | "failed", paymentId?: string): boolean => {
-    const data = readDb();
-    const idx = data.bookings.findIndex(b => b.id === id);
-    if (idx === -1) return false;
-    data.bookings[idx].status = status;
+  updateBookingStatus: async (id: string, status: "pending" | "paid" | "failed", paymentId?: string): Promise<boolean> => {
+    const database = await getDb();
+    const updateDoc: any = { status };
     if (paymentId) {
-      data.bookings[idx].paymentId = paymentId;
+      updateDoc.paymentId = paymentId;
     }
-    return writeDb(data);
+    const res = await database.collection("bookings").updateOne(
+      { id },
+      { $set: updateDoc }
+    );
+    return res.modifiedCount > 0 || res.matchedCount > 0;
   },
 
-  deleteBooking: (id: string): boolean => {
-    const data = readDb();
-    data.bookings = data.bookings.filter(b => b.id !== id);
-    return writeDb(data);
+  deleteBooking: async (id: string): Promise<boolean> => {
+    const database = await getDb();
+    const res = await database.collection("bookings").deleteOne({ id });
+    return res.deletedCount > 0;
   }
 };

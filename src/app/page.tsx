@@ -2,13 +2,14 @@ import Link from "next/link";
 import { db } from "@/lib/db";
 import { formatCurrency } from "@/lib/utils";
 import Countdown from "./components/Countdown";
+import heroImage from "./assets/hero.jpg";
 
-export default function Home() {
-  const events = db.getEvents();
-  
+export default async function Home() {
+  const events = await db.getEvents();
+
   // Find current active event
   const upcomingEvent = events.find((e) => e.status === "active");
-  
+
   // Filter out completed past events
   const pastEvents = events.filter((e) => e.status === "completed");
 
@@ -18,7 +19,7 @@ export default function Home() {
   let isDeadlinePassed = false;
 
   if (upcomingEvent) {
-    const eventBookings = db.getBookingsByEventId(upcomingEvent.id);
+    const eventBookings = await db.getBookingsByEventId(upcomingEvent.id);
     paidBookingsCount = eventBookings.filter((b) => b.status === "paid").length;
     isSoldOut = paidBookingsCount >= upcomingEvent.maxSlots;
     isDeadlinePassed = new Date(upcomingEvent.deadline).getTime() < Date.now();
@@ -36,8 +37,8 @@ export default function Home() {
               <span>beautiful connections.</span>
             </h1>
             <p className="hero-description">
-              Chai &amp; Bae Club is Dubai&apos;s premier social sanctuary for girls. 
-              We curate high-aesthetic, comfortable workshops, game nights, and cozy tea-fueled sessions 
+              Chai &amp; Bae Club is Dubai&apos;s premier social sanctuary for girls.
+              We curate high-aesthetic, comfortable workshops, game nights, and cozy tea-fueled sessions
               designed to build lasting friendships. Baddies only, good vibes guaranteed.
             </p>
             <div className="hero-actions">
@@ -53,10 +54,10 @@ export default function Home() {
               </a>
             </div>
           </div>
-          
+
           <div className="hero-visual">
             {/* Soft decorative background circles */}
-            <div 
+            <div
               style={{
                 position: "absolute",
                 width: "110%",
@@ -67,11 +68,11 @@ export default function Home() {
                 zIndex: -1
               }}
             ></div>
-            
+
             <div className="hero-frame">
-              <img 
-                src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=800" 
-                alt="Chai and Bae Club Vibe" 
+              <img
+                src={heroImage.src}
+                alt="Chai and Bae Club Vibe"
               />
             </div>
 
@@ -102,7 +103,7 @@ export default function Home() {
             <span className="section-tag">📅 DONT MISS OUT</span>
             <h2 className="section-title">Our Current Event</h2>
             <p className="section-desc">
-              Grab your tickets early! Slots are kept strictly limited to maintain a cozy, 
+              Grab your tickets early! Slots are kept strictly limited to maintain a cozy,
               intimate environment where everyone can chat, connect, and relax.
             </p>
           </div>
@@ -116,11 +117,11 @@ export default function Home() {
                   {upcomingEvent.maxSlots - paidBookingsCount} spots left
                 </span>
               </div>
-              
+
               <div className="featured-content">
                 <h3 className="featured-title">{upcomingEvent.title}</h3>
                 <p className="featured-description">{upcomingEvent.description}</p>
-                
+
                 {/* Meta details list */}
                 <div className="meta-grid">
                   <div className="meta-item">
@@ -173,8 +174,8 @@ export default function Home() {
                     </span>
                   </div>
                   <div className="slots-progress-bar">
-                    <div 
-                      className="slots-progress-fill" 
+                    <div
+                      className="slots-progress-fill"
                       style={{ width: `${(paidBookingsCount / upcomingEvent.maxSlots) * 100}%` }}
                     ></div>
                   </div>
@@ -193,8 +194,8 @@ export default function Home() {
                     ⌛ Booking Closed (Deadline Passed)
                   </button>
                 ) : (
-                  <Link 
-                    href={`/checkout/${upcomingEvent.id}`} 
+                  <Link
+                    href={`/checkout/${upcomingEvent.id}`}
                     className="btn btn-primary"
                     style={{ width: "100%", padding: "16px" }}
                   >
@@ -208,13 +209,13 @@ export default function Home() {
               <div style={{ fontSize: "48px", marginBottom: "20px" }}>🌸</div>
               <h3 style={{ marginBottom: "12px" }}>Gathering New Vibes...</h3>
               <p style={{ color: "var(--text-muted)", marginBottom: "30px" }}>
-                We are currently cooking up the next beautiful adventure for our girlies. 
+                We are currently cooking up the next beautiful adventure for our girlies.
                 Keep a close eye on our Instagram community for dates, slots, and announcements!
               </p>
-              <a 
-                href="https://www.instagram.com/chaiandbaeclub/" 
-                target="_blank" 
-                rel="noopener noreferrer" 
+              <a
+                href="https://www.instagram.com/chaiandbae.byqn/"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="btn btn-sage"
               >
                 Join Instagram Channel
@@ -231,18 +232,18 @@ export default function Home() {
             <span className="section-tag">✨ MEMORY ARCHIVE</span>
             <h2 className="section-title">Past Event Jam Sessions</h2>
             <p className="section-desc">
-              Here is a look back at our cozy gatherings. Click on any event card below to 
+              Here is a look back at our cozy gatherings. Click on any event card below to
               head over to our Instagram page for pictures, reels, reviews, and detailed vibes!
             </p>
           </div>
 
           <div className="events-grid">
             {pastEvents.map((event) => (
-              <a 
-                key={event.id} 
-                href={event.instagramUrl || "https://www.instagram.com/chaiandbaeclub/"} 
-                target="_blank" 
-                rel="noopener noreferrer" 
+              <a
+                key={event.id}
+                href={event.instagramUrl || "https://www.instagram.com/chaiandbae.byqn/"}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="event-card"
                 style={{ textDecoration: "none" }}
               >
@@ -262,14 +263,14 @@ export default function Home() {
                     <span>📍 {event.location.split(",")[0]}</span>
                   </div>
                   <p className="event-card-desc">{event.description}</p>
-                  
+
                   <div className="event-card-footer">
                     <span style={{ fontSize: "12px", color: "var(--accent-sage-dark)", fontWeight: "600" }}>
                       Completed Jam ✓
                     </span>
-                    <span className="event-card-price">
+                    {/* <span className="event-card-price">
                       {formatCurrency(event.price)}
-                    </span>
+                    </span> */}
                   </div>
                 </div>
               </a>

@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const eventId = searchParams.get("eventId");
 
-    let bookings = db.getBookings();
+    let bookings = await db.getBookings();
     
     if (eventId) {
       bookings = bookings.filter(b => b.eventId === eventId);
@@ -49,13 +49,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: "Invalid status value." }, { status: 400 });
     }
 
-    const booking = db.getBookingById(bookingId);
+    const booking = await db.getBookingById(bookingId);
     if (!booking) {
       return NextResponse.json({ message: "Booking reference not found." }, { status: 404 });
     }
 
     const payId = status === "paid" ? "manual_override_" + Date.now() : undefined;
-    const success = db.updateBookingStatus(bookingId, status, payId);
+    const success = await db.updateBookingStatus(bookingId, status, payId);
 
     if (!success) {
       throw new Error("Local database update failed.");
@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       message: `Booking manually updated to ${status}.`,
-      booking: db.getBookingById(bookingId)
+      booking: await db.getBookingById(bookingId)
     });
 
   } catch (error: any) {
@@ -87,7 +87,7 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ message: "Booking ID parameter is required." }, { status: 400 });
     }
 
-    const success = db.deleteBooking(bookingId);
+    const success = await db.deleteBooking(bookingId);
     if (!success) {
       return NextResponse.json({ message: "Unable to find and delete booking record." }, { status: 404 });
     }

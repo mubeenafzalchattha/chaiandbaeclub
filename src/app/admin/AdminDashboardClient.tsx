@@ -35,10 +35,42 @@ export default function AdminDashboardClient({ initialEvents, initialBookings }:
   const [maxSlots, setMaxSlots] = useState(15);
   const [image, setImage] = useState(IMAGE_PRESETS[0].url);
   const [status, setStatus] = useState<"active" | "draft" | "completed">("active");
+  const [uploading, setUploading] = useState(false);
   
   const [formLoading, setFormLoading] = useState(false);
   const [formSuccess, setFormSuccess] = useState("");
   const [formError, setFormError] = useState("");
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    setFormError("");
+    setFormSuccess("");
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch("/api/admin/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to upload image.");
+      }
+
+      setImage(data.url);
+      setFormSuccess("Image uploaded successfully!");
+    } catch (err: any) {
+      setFormError(err.message || "Image upload failed.");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   // Filters state
   const [selectedEventId, setSelectedEventId] = useState<string>("all");
@@ -697,44 +729,32 @@ export default function AdminDashboardClient({ initialEvents, initialBookings }:
                 />
               </div>
 
-              {/* High end image selector presets */}
+              {/* Event banner upload block */}
               <div className="form-group">
-                <label className="form-label">Visual Card Image Preset Selector</label>
-                <div className="form-grid-2col" style={{ marginBottom: "12px" }}>
-                  {IMAGE_PRESETS.map((p, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => setImage(p.url)}
-                      style={{ 
-                        padding: "10px", 
-                        borderRadius: "8px", 
-                        border: "1px solid",
-                        borderColor: image === p.url ? "var(--accent-pink-main)" : "var(--accent-pink-soft)", 
-                        background: image === p.url ? "var(--accent-pink-light)" : "var(--bg-cream)",
-                        fontSize: "12px",
-                        fontWeight: "600",
-                        color: "var(--accent-berry)",
-                        cursor: "pointer",
-                        textAlign: "left",
-                        display: "flex",
-                        alignItems: "center"
-                      }}
-                    >
-                      {p.label}
-                    </button>
-                  ))}
-                </div>
-                <label className="form-label" style={{ fontSize: "11px", color: "var(--text-muted)" }}>Custom Unsplash/External Image URL Override</label>
+                <label className="form-label">Upload Event Banner Image</label>
                 <input
-                  type="url"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
                   className="form-input"
-                  placeholder="https://images.unsplash.com/photo-..."
-                  value={image}
-                  onChange={(e) => setImage(e.target.value)}
-                  required
+                  style={{ background: "var(--bg-cream)", padding: "10px" }}
+                  required={!image}
+                  disabled={uploading || formLoading}
                 />
+                {uploading && <p style={{ fontSize: "11px", color: "var(--accent-pink-main)", marginTop: "4px" }}>Uploading image... Please wait.</p>}
+                
+                {image && (
+                  <div style={{ marginTop: "12px" }}>
+                    <p style={{ fontSize: "11px", color: "var(--text-muted)" }}>Current Banner Preview:</p>
+                    <img 
+                      src={image} 
+                      alt="Banner Preview" 
+                      style={{ width: "100%", maxHeight: "150px", objectFit: "cover", borderRadius: "8px", marginTop: "4px", border: "1px solid var(--border-light)" }} 
+                    />
+                  </div>
+                )}
               </div>
+
 
               <div className="form-grid-2col">
                 <div className="form-group">

@@ -14,8 +14,8 @@ export default async function AdminPage() {
   }
 
   // Load events and bookings directly from local JSON database on server
-  const events = db.getEvents();
-  const bookings = db.getBookings();
+  const events = await db.getEvents();
+  const bookings = await db.getBookings();
 
   return (
     <main style={{ minHeight: "100vh", background: "var(--bg-cream)" }}>

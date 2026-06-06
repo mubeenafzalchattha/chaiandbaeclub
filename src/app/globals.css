@@ -1,5 +1,5 @@
 /* Import Premium Google Fonts directly */
-@import url('https://fonts.googleapis.com/css2?family=Italiana&family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Indie+Flower&family=Italiana&family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
 
 :root {
   /* Premium Design Tokens */
@@ -8,24 +8,32 @@
   --bg-glass: rgba(255, 255, 255, 0.75);
   --bg-glass-heavy: rgba(255, 255, 255, 0.9);
   
-  --accent-pink-light: #FFF0F2;
-  --accent-pink-soft: #FFD6DC;
-  --accent-pink-main: #FF8E9E;
-  --accent-pink-dark: #E06D7D;
+  /* Nice pastel colors from user */
+  --pastel-blue: #92C9DD;
+  --pastel-teal: #9BE3D4;
+  --pastel-green: #B5EAD7;
+  --pastel-yellow-green: #E2F0CB;
+  --pastel-peach: #E8C5C8;
+  --pastel-pink: #FF9AA2;
+  
+  --accent-pink-light: #FFF5F6;
+  --accent-pink-soft: var(--pastel-peach);
+  --accent-pink-main: var(--pastel-pink);
+  --accent-pink-dark: #E6868E;
   --accent-berry: #5D1225;
   --accent-berry-glow: rgba(93, 18, 37, 0.05);
   
-  --accent-sage: #8FA89B;
-  --accent-sage-light: #E2ECE9;
-  --accent-sage-dark: #5C7B6C;
+  --accent-sage: var(--pastel-teal);
+  --accent-sage-light: var(--pastel-yellow-green);
+  --accent-sage-dark: #405C4E;
   
   --text-dark: #2C1E1B;
   --text-muted: #6B5B57;
   --border-light: rgba(224, 109, 125, 0.15);
   --border-sage: rgba(143, 168, 155, 0.3);
   
-  --font-serif: 'Playfair Display', 'Italiana', serif;
-  --font-sans: 'Outfit', sans-serif;
+  --font-serif: 'Indie Flower', cursive;
+  --font-sans: 'Indie Flower', cursive;
   
   --shadow-sm: 0 4px 10px rgba(93, 18, 37, 0.04);
   --shadow-md: 0 10px 25px rgba(93, 18, 37, 0.08);
@@ -1701,5 +1709,115 @@ h1, h2, h3, h4, .font-serif {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+/* Background Bubbles Animation styling */
+.bubbles-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.bubble {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.25;
+  filter: blur(8px);
+  animation: float-bubble 20s infinite ease-in-out alternate;
+}
+
+.bubble:nth-child(1) {
+  width: 150px;
+  height: 150px;
+  background: var(--pastel-blue);
+  left: 5%;
+  top: 10%;
+  animation-duration: 25s;
+}
+
+.bubble:nth-child(2) {
+  width: 220px;
+  height: 220px;
+  background: var(--pastel-pink);
+  right: 10%;
+  top: 30%;
+  animation-duration: 35s;
+  animation-delay: -5s;
+}
+
+.bubble:nth-child(3) {
+  width: 130px;
+  height: 130px;
+  background: var(--pastel-teal);
+  left: 15%;
+  bottom: 15%;
+  animation-duration: 20s;
+  animation-delay: -8s;
+}
+
+.bubble:nth-child(4) {
+  width: 180px;
+  height: 180px;
+  background: var(--pastel-yellow-green);
+  right: 25%;
+  top: 5%;
+  animation-duration: 30s;
+}
+
+.bubble:nth-child(5) {
+  width: 160px;
+  height: 160px;
+  background: var(--pastel-peach);
+  left: 8%;
+  top: 55%;
+  animation-duration: 28s;
+  animation-delay: -12s;
+}
+
+.bubble:nth-child(6) {
+  width: 120px;
+  height: 120px;
+  background: var(--pastel-green);
+  right: 15%;
+  bottom: 8%;
+  animation-duration: 22s;
+  animation-delay: -4s;
+}
+
+.bubble:nth-child(7) {
+  width: 200px;
+  height: 200px;
+  background: var(--pastel-blue);
+  left: 40%;
+  top: 40%;
+  animation-duration: 40s;
+  animation-delay: -15s;
+}
+
+.bubble:nth-child(8) {
+  width: 140px;
+  height: 140px;
+  background: var(--pastel-pink);
+  left: 50%;
+  bottom: 25%;
+  animation-duration: 26s;
+  animation-delay: -6s;
+}
+
+@keyframes float-bubble {
+  0% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+  50% {
+    transform: translate(80px, 100px) scale(1.15) rotate(180deg);
+  }
+  100% {
+    transform: translate(-40px, -60px) scale(0.9) rotate(360deg);
+  }
 }
 

@@ -13,19 +13,19 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ message: "Booking ID is required." }, { status: 400 });
     }
 
-    const booking = db.getBookingById(bookingId);
+    const booking = await db.getBookingById(bookingId);
     if (!booking) {
       return NextResponse.json({ message: "Booking not found." }, { status: 404 });
     }
 
-    const event = db.getEventById(booking.eventId);
+    const event = await db.getEventById(booking.eventId);
     if (!event) {
       return NextResponse.json({ message: "Associated event not found." }, { status: 404 });
     }
 
     // If live Ziina returns successfully, automatically confirm booking
     if (statusParam === "success") {
-      db.updateBookingStatus(bookingId, "paid", "ziina_live_" + Date.now().toString());
+      await db.updateBookingStatus(bookingId, "paid", "ziina_live_" + Date.now().toString());
       // Redirect directly to success page
       const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
       return NextResponse.redirect(`${baseUrl}/checkout/success?bookingId=${bookingId}`);
@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const booking = db.getBookingById(bookingId);
+    const booking = await db.getBookingById(bookingId);
     if (!booking) {
       return NextResponse.json({ message: "Booking reference not found." }, { status: 404 });
     }
@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
     const mockPaymentId = "ziina_sim_" + Math.random().toString(36).substring(2, 10).toUpperCase();
 
     // Confirm booking in the database
-    const success = db.updateBookingStatus(bookingId, "paid", mockPaymentId);
+    const success = await db.updateBookingStatus(bookingId, "paid", mockPaymentId);
 
     if (!success) {
       throw new Error("Failed to update ledger records.");

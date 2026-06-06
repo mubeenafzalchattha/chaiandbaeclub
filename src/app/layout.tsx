@@ -20,11 +20,28 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap" rel="stylesheet" />
+      </head>
       <body>
         {/* Ambient background blur elements for aesthetic glow */}
         <div className="ambient-glow" style={{ top: "-10%", left: "5%" }}></div>
         <div className="ambient-glow-2" style={{ top: "40%", right: "10%" }}></div>
         <div className="ambient-glow" style={{ bottom: "-5%", left: "15%" }}></div>
+
+        {/* Floating moving bubbles in background */}
+        <div className="bubbles-container">
+          <div className="bubble"></div>
+          <div className="bubble"></div>
+          <div className="bubble"></div>
+          <div className="bubble"></div>
+          <div className="bubble"></div>
+          <div className="bubble"></div>
+          <div className="bubble"></div>
+          <div className="bubble"></div>
+        </div>
 
         {/* Global Navigation Header */}
         <header className="navbar">

@@ -41,11 +41,11 @@ function SuccessContent() {
       try {
         const res = await fetch(`/api/checkout/confirm?bookingId=${bookingId}&check=true`);
         const data = await res.json();
-        
+
         if (!res.ok) {
           throw new Error(data.message || "Failed to load booking ticket.");
         }
-        
+
         setBooking(data.booking);
         setEvent(data.event);
       } catch (err: any) {
@@ -59,134 +59,328 @@ function SuccessContent() {
     fetchBookingDetails();
   }, [bookingId]);
 
+  // const handleDownloadPDF = () => {
+  //   if (!booking || !event) return;
+
+  //   const doc = new jsPDF({
+  //     orientation: "portrait",
+  //     unit: "mm",
+  //     format: "a5",
+  //   });
+
+  //   // Background Card
+  //   doc.setFillColor(250, 246, 240);
+  //   doc.rect(0, 0, 148, 210, "F");
+
+  //   // Top Header Ribbon
+  //   doc.setFillColor(93, 18, 37);
+  //   doc.rect(0, 0, 148, 30, "F");
+
+  //   // Header Text
+  //   doc.setTextColor(255, 240, 242);
+  //   doc.setFont("Helvetica", "bold");
+  //   doc.setFontSize(10);
+  //   doc.text("CHAI & BAE CLUB DUBAI", 74, 12, { align: "center" });
+  //   doc.setFontSize(14);
+  //   doc.text("OFFICIAL ENTRY PASS", 74, 20, { align: "center" });
+
+  //   // Divider
+  //   doc.setDrawColor(255, 142, 158);
+  //   doc.setLineWidth(0.5);
+  //   doc.line(10, 38, 138, 38);
+
+  //   // Event Title
+  //   doc.setTextColor(93, 18, 37);
+  //   doc.setFont("Helvetica", "bold");
+  //   doc.setFontSize(15);
+  //   doc.text(event.title || "Club Event Pass", 74, 48, { align: "center" });
+
+  //   // Border container
+  //   doc.setDrawColor(224, 109, 125);
+  //   doc.rect(10, 58, 128, 122);
+
+  //   // Grid details
+  //   doc.setFontSize(9);
+  //   doc.setTextColor(107, 91, 87);
+  //   doc.setFont("Helvetica", "normal");
+
+  //   // Left side info
+  //   doc.text("CONFIRMATION CODE", 15, 68);
+  //   doc.setFont("Helvetica", "bold");
+  //   doc.setTextColor(93, 18, 37);
+  //   doc.setFontSize(12);
+  //   doc.text(booking.id, 15, 74);
+
+  //   doc.setFontSize(9);
+  //   doc.setTextColor(107, 91, 87);
+  //   doc.setFont("Helvetica", "normal");
+  //   doc.text("GUEST NAME", 15, 90);
+  //   doc.setFont("Helvetica", "bold");
+  //   doc.setTextColor(44, 30, 27);
+  //   doc.setFontSize(11);
+  //   doc.text(booking.name, 15, 96);
+
+  //   doc.setFontSize(9);
+  //   doc.setTextColor(107, 91, 87);
+  //   doc.setFont("Helvetica", "normal");
+  //   doc.text("WHATSAPP CONTACT", 15, 112);
+  //   doc.setFont("Helvetica", "bold");
+  //   doc.setTextColor(44, 30, 27);
+  //   doc.setFontSize(11);
+  //   doc.text(booking.whatsapp, 15, 118);
+
+  //   // Right side info
+  //   doc.setFontSize(9);
+  //   doc.setTextColor(107, 91, 87);
+  //   doc.setFont("Helvetica", "normal");
+  //   doc.text("EVENT TIMING", 80, 68);
+  //   doc.setFont("Helvetica", "bold");
+  //   doc.setTextColor(44, 30, 27);
+  //   doc.setFontSize(11);
+  //   doc.text(event.date || "", 80, 74);
+  //   doc.setFont("Helvetica", "normal");
+  //   doc.setFontSize(10);
+  //   doc.text(event.time || "", 80, 80);
+
+  //   doc.setFontSize(9);
+  //   doc.setTextColor(107, 91, 87);
+  //   doc.setFont("Helvetica", "normal");
+  //   doc.text("VENUE PLACE", 80, 96);
+  //   doc.setFont("Helvetica", "bold");
+  //   doc.setTextColor(44, 30, 27);
+  //   doc.setFontSize(11);
+  //   doc.text(event.location.split(",")[0], 80, 102);
+
+  //   doc.setFontSize(9);
+  //   doc.setTextColor(107, 91, 87);
+  //   doc.setFont("Helvetica", "normal");
+  //   doc.text("EMAIL ADDRESS", 80, 112);
+  //   doc.setFont("Helvetica", "bold");
+  //   doc.setTextColor(44, 30, 27);
+  //   doc.setFontSize(10);
+  //   const splitEmail = doc.splitTextToSize(booking.email, 50);
+  //   doc.text(splitEmail, 80, 118);
+
+  //   // Divider line
+  //   doc.setDrawColor(224, 109, 125);
+  //   doc.line(10, 135, 138, 135);
+
+  //   // Important notes
+  //   doc.setFontSize(9);
+  //   doc.setTextColor(92, 123, 108);
+  //   doc.setFont("Helvetica", "bold");
+  //   doc.text("IMPORTANT VENUE DETAILS", 74, 142, { align: "center" });
+
+  //   doc.setFontSize(8.5);
+  //   doc.setTextColor(107, 91, 87);
+  //   doc.setFont("Helvetica", "normal");
+  //   doc.text("The exact venue coordinates in Dubai will be shared", 74, 150, { align: "center" });
+  //   doc.text("via WhatsApp (+971) one day before the event.", 74, 155, { align: "center" });
+
+  //   // Seal
+  //   doc.setDrawColor(92, 123, 108);
+  //   doc.setLineWidth(1);
+  //   doc.circle(74, 185, 12, "D");
+  //   doc.setFontSize(8);
+  //   doc.setTextColor(92, 123, 108);
+  //   doc.setFont("Helvetica", "bold");
+  //   doc.text("CONFIRMED", 74, 183, { align: "center" });
+  //   doc.setFontSize(6);
+  //   doc.text("BAE CLUB LEDGER", 74, 188, { align: "center" });
+
+  //   doc.save(`chai_and_bae_ticket_${booking.id}.pdf`);
+  // };
+
   const handleDownloadPDF = () => {
     if (!booking || !event) return;
 
-    const doc = new jsPDF({
-      orientation: "portrait",
-      unit: "mm",
-      format: "a5",
-    });
+    const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a5" });
+    const W = 148, H = 210;
 
-    // Background Card
+    // ── Background ──────────────────────────────────────────────────
     doc.setFillColor(250, 246, 240);
-    doc.rect(0, 0, 148, 210, "F");
+    doc.rect(0, 0, W, H, "F");
 
-    // Top Header Ribbon
+    // ── Header ribbon ───────────────────────────────────────────────
     doc.setFillColor(93, 18, 37);
-    doc.rect(0, 0, 148, 30, "F");
+    doc.rect(0, 0, W, 38, "F");
 
-    // Header Text
+    // Subtle circle decoration in header
+    doc.setDrawColor(255, 240, 242);
+    doc.setLineWidth(0.3);
+    doc.setFillColor(255, 240, 242);
+    // (jsPDF circle is outline-only; we skip the decorative circle for clean output)
+
+    // Eyebrow label
+    doc.setTextColor(255, 142, 158);
+    doc.setFont("Helvetica", "normal");
+    doc.setFontSize(7);
+    doc.setCharSpace(2.5);
+    doc.text("OFFICIAL ENTRY PASS", 74, 10, { align: "center" });
+    doc.setCharSpace(0);
+
+    // Club name
     doc.setTextColor(255, 240, 242);
     doc.setFont("Helvetica", "bold");
-    doc.setFontSize(10);
-    doc.text("CHAI & BAE CLUB DUBAI", 74, 12, { align: "center" });
-    doc.setFontSize(14);
-    doc.text("OFFICIAL ENTRY PASS", 74, 20, { align: "center" });
+    doc.setFontSize(16);
+    doc.text("CHAI & BAE CLUB DUBAI", 74, 20, { align: "center" });
 
-    // Divider
-    doc.setDrawColor(255, 142, 158);
-    doc.setLineWidth(0.5);
-    doc.line(10, 38, 138, 38);
-
-    // Event Title
-    doc.setTextColor(93, 18, 37);
-    doc.setFont("Helvetica", "bold");
-    doc.setFontSize(15);
-    doc.text(event.title || "Club Event Pass", 74, 48, { align: "center" });
-
-    // Border container
-    doc.setDrawColor(224, 109, 125);
-    doc.rect(10, 58, 128, 122);
-
-    // Grid details
-    doc.setFontSize(9);
-    doc.setTextColor(107, 91, 87);
+    // Members line
     doc.setFont("Helvetica", "normal");
-    
-    // Left side info
-    doc.text("CONFIRMATION CODE", 15, 68);
-    doc.setFont("Helvetica", "bold");
-    doc.setTextColor(93, 18, 37);
-    doc.setFontSize(12);
-    doc.text(booking.id, 15, 74);
+    doc.setFontSize(7);
+    doc.setTextColor(255, 240, 242);
+    doc.setCharSpace(2);
+    doc.text("MEMBERS & GUESTS", 74, 29, { align: "center" });
+    doc.setCharSpace(0);
 
-    doc.setFontSize(9);
-    doc.setTextColor(107, 91, 87);
-    doc.setFont("Helvetica", "normal");
-    doc.text("GUEST NAME", 15, 90);
-    doc.setFont("Helvetica", "bold");
-    doc.setTextColor(44, 30, 27);
+    // ── Event banner (darker burgundy strip) ────────────────────────
+    doc.setFillColor(110, 25, 45);
+    doc.rect(0, 38, W, 14, "F");
+
+    doc.setTextColor(255, 214, 222);
+    doc.setFont("Helvetica", "italic");
     doc.setFontSize(11);
-    doc.text(booking.name, 15, 96);
+    doc.text(event.title || "Club Event Pass", 15, 47);
 
-    doc.setFontSize(9);
-    doc.setTextColor(107, 91, 87);
-    doc.setFont("Helvetica", "normal");
-    doc.text("WHATSAPP CONTACT", 15, 112);
-    doc.setFont("Helvetica", "bold");
-    doc.setTextColor(44, 30, 27);
-    doc.setFontSize(11);
-    doc.text(booking.whatsapp, 15, 118);
-
-    // Right side info
-    doc.setFontSize(9);
-    doc.setTextColor(107, 91, 87);
-    doc.setFont("Helvetica", "normal");
-    doc.text("EVENT TIMING", 80, 68);
-    doc.setFont("Helvetica", "bold");
-    doc.setTextColor(44, 30, 27);
-    doc.setFontSize(11);
-    doc.text(event.date || "", 80, 74);
-    doc.setFont("Helvetica", "normal");
-    doc.setFontSize(10);
-    doc.text(event.time || "", 80, 80);
-
-    doc.setFontSize(9);
-    doc.setTextColor(107, 91, 87);
-    doc.setFont("Helvetica", "normal");
-    doc.text("VENUE PLACE", 80, 96);
-    doc.setFont("Helvetica", "bold");
-    doc.setTextColor(44, 30, 27);
-    doc.setFontSize(11);
-    doc.text(event.location.split(",")[0], 80, 102);
-
-    doc.setFontSize(9);
-    doc.setTextColor(107, 91, 87);
-    doc.setFont("Helvetica", "normal");
-    doc.text("EMAIL ADDRESS", 80, 112);
-    doc.setFont("Helvetica", "bold");
-    doc.setTextColor(44, 30, 27);
-    doc.setFontSize(10);
-    const splitEmail = doc.splitTextToSize(booking.email, 50);
-    doc.text(splitEmail, 80, 118);
-
-    // Divider line
-    doc.setDrawColor(224, 109, 125);
-    doc.line(10, 135, 138, 135);
-
-    // Important notes
-    doc.setFontSize(9);
+    // Confirmed badge (right-aligned)
+    doc.setDrawColor(92, 123, 108);
+    doc.setLineWidth(0.4);
+    doc.roundedRect(108, 42, 30, 7, 3, 3, "D");
     doc.setTextColor(92, 123, 108);
     doc.setFont("Helvetica", "bold");
-    doc.text("IMPORTANT VENUE DETAILS", 74, 142, { align: "center" });
-    
-    doc.setFontSize(8.5);
-    doc.setTextColor(107, 91, 87);
-    doc.setFont("Helvetica", "normal");
-    doc.text("The exact venue coordinates in Dubai will be shared", 74, 150, { align: "center" });
-    doc.text("via WhatsApp (+971) one day before the event.", 74, 155, { align: "center" });
+    doc.setFontSize(6.5);
+    doc.setCharSpace(1);
+    doc.text("✓  CONFIRMED", 123, 47, { align: "center" });
+    doc.setCharSpace(0);
 
-    // Seal
+    // ── Info grid border ────────────────────────────────────────────
+    const gridX = 12, gridY = 58, gridW = 124, gridH = 66;
+    doc.setDrawColor(224, 109, 125);
+    doc.setLineWidth(0.4);
+    doc.roundedRect(gridX, gridY, gridW, gridH, 3, 3, "D");
+
+    // Grid internal lines
+    doc.setDrawColor(240, 196, 204);
+    doc.setLineWidth(0.3);
+    // Vertical center divider (rows 2–4)
+    doc.line(74, gridY + 16, 74, gridY + gridH);
+    // Horizontal separators
+    doc.line(gridX, gridY + 16, gridX + gridW, gridY + 16); // below code
+    doc.line(gridX, gridY + 33, gridX + gridW, gridY + 33); // below row 2
+    doc.line(gridX, gridY + 50, gridX + gridW, gridY + 50); // below row 3
+
+    const label = (text: string, x: number, y: number) => {
+      doc.setFont("Helvetica", "normal");
+      doc.setFontSize(6.5);
+      doc.setTextColor(160, 128, 122);
+      doc.setCharSpace(1.5);
+      doc.text(text, x, y);
+      doc.setCharSpace(0);
+    };
+
+    const value = (text: string, x: number, y: number, size = 10.5) => {
+      doc.setFont("Helvetica", "bold");
+      doc.setFontSize(size);
+      doc.setTextColor(44, 30, 27);
+      doc.text(text, x, y);
+    };
+
+    // Row 1 — Confirmation code (full width)
+    label("CONFIRMATION CODE", 17, 65);
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(13);
+    doc.setTextColor(93, 18, 37);
+    doc.setCharSpace(1);
+    doc.text(booking.id, 17, 73);
+    doc.setCharSpace(0);
+
+    // Row 2 — Name / Date
+    label("GUEST NAME", 17, 81);
+    value(booking.name, 17, 88);
+
+    label("EVENT TIMING", 77, 81);
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(9.5);
+    doc.setTextColor(44, 30, 27);
+    doc.text(event.date || "", 77, 88);
+    doc.setFont("Helvetica", "normal");
+    doc.setFontSize(8.5);
+    doc.setTextColor(120, 95, 90);
+    doc.text(event.time || "", 77, 93);
+
+    // Row 3 — WhatsApp / Venue
+    label("WHATSAPP CONTACT", 17, 98);
+    value(booking.whatsapp, 17, 105);
+
+    label("VENUE", 77, 98);
+    value(event.location.split(",")[0], 77, 105, 9.5);
+
+    // Row 4 — Email
+    label("EMAIL ADDRESS", 17, 115);
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(9);
+    doc.setTextColor(44, 30, 27);
+    const splitEmail = doc.splitTextToSize(booking.email, 115);
+    doc.text(splitEmail, 17, 121);
+
+    // ── Venue hint box ──────────────────────────────────────────────
+    doc.setFillColor(235, 245, 240);
     doc.setDrawColor(92, 123, 108);
-    doc.setLineWidth(1);
-    doc.circle(74, 185, 12, "D");
+    doc.setLineWidth(0.35);
+    doc.roundedRect(12, 130, 124, 20, 3, 3, "FD");
+
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(6.5);
+    doc.setTextColor(74, 110, 94);
+    doc.setCharSpace(1.5);
+    doc.text("IMPORTANT — VENUE DETAILS", 74, 137, { align: "center" });
+    doc.setCharSpace(0);
+
+    doc.setFont("Helvetica", "normal");
     doc.setFontSize(8);
     doc.setTextColor(92, 123, 108);
+    doc.text(
+      "Exact coordinates in Dubai will be shared via WhatsApp (+971)",
+      74, 143, { align: "center" }
+    );
+    doc.text("one day before the event.", 74, 148, { align: "center" });
+
+    // ── Tearline ────────────────────────────────────────────────────
+    doc.setDrawColor(232, 197, 204);
+    doc.setLineWidth(0.5);
+    // Dashed line: draw as short segments
+    const dashY = 158;
+    for (let x = 14; x < 134; x += 5) {
+      doc.line(x, dashY, Math.min(x + 3, 134), dashY);
+    }
+    // Small diamond in center
+    doc.setFillColor(232, 197, 204);
+    const cx = 74, cy = dashY;
+    doc.setDrawColor(224, 109, 125);
+    doc.circle(cx, cy, 2, "FD");
+
+    // ── Footer ──────────────────────────────────────────────────────
+    doc.setFillColor(253, 241, 243);
+    doc.rect(0, 163, W, H - 163, "F");
+
+    // Ledger seal — pill badge
+    doc.setDrawColor(92, 123, 108);
+    doc.setLineWidth(0.4);
+    doc.roundedRect(49, 170, 50, 9, 4, 4, "D");
+    doc.setTextColor(92, 123, 108);
     doc.setFont("Helvetica", "bold");
-    doc.text("CONFIRMED", 74, 183, { align: "center" });
-    doc.setFontSize(6);
-    doc.text("BAE CLUB LEDGER", 74, 188, { align: "center" });
+    doc.setFontSize(6.5);
+    doc.setCharSpace(1.5);
+    doc.text("BAE CLUB LEDGER", 74, 176, { align: "center" });
+    doc.setCharSpace(0);
+
+    // Footer fine print
+    doc.setFont("Helvetica", "normal");
+    doc.setFontSize(7.5);
+    doc.setTextColor(138, 112, 112);
+    doc.text("Present this pass at entry · Non-transferable · One admission", 74, 188, {
+      align: "center",
+    });
 
     doc.save(`chai_and_bae_ticket_${booking.id}.pdf`);
   };
@@ -213,7 +407,7 @@ function SuccessContent() {
   return (
     <main style={{ minHeight: "80vh", padding: "60px 0" }}>
       {/* Decorative Confetti Background element */}
-      <div 
+      <div
         style={{
           position: "fixed",
           top: 0,
@@ -231,22 +425,22 @@ function SuccessContent() {
           <div style={{ fontSize: "60px", animation: "float 4s infinite ease-in-out" }}>✨🌸✨</div>
           <h2 className="section-title" style={{ marginTop: "12px" }}>See you there, baddie!</h2>
           <p className="section-desc" style={{ marginBottom: "0" }}>
-            Your transaction has been securely processed by Ziina. Your physical reservation 
+            Your transaction has been securely processed by Ziina. Your physical reservation
             for the club event is officially confirmed!
           </p>
         </div>
 
         {/* Highlight notification bar */}
-        <div 
-          style={{ 
-            background: "var(--accent-pink-light)", 
-            border: "1px solid var(--accent-pink-soft)", 
-            borderRadius: "12px", 
-            padding: "16px", 
-            marginBottom: "32px", 
-            color: "var(--accent-berry)", 
-            fontWeight: "600", 
-            fontSize: "14px", 
+        <div
+          style={{
+            background: "var(--accent-pink-light)",
+            border: "1px solid var(--accent-pink-soft)",
+            borderRadius: "12px",
+            padding: "16px",
+            marginBottom: "32px",
+            color: "var(--accent-berry)",
+            fontWeight: "600",
+            fontSize: "14px",
             textAlign: "center",
             maxWidth: "520px",
             margin: "0 auto 32px"
