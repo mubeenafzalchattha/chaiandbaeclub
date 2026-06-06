@@ -37,10 +37,14 @@ export default async function Home() {
               <span>beautiful connections.</span>
             </h1>
             <p className="hero-description">
-              Chai &amp; Bae Club is Dubai&apos;s premier social sanctuary for girls.
+              Chai &amp; Bae Club is UAE&apos;s premier social sanctuary for girls.
               We curate high-aesthetic, comfortable workshops, game nights, and cozy tea-fueled sessions
-              designed to build lasting friendships. Baddies only, good vibes guaranteed.
+              designed to build lasting friendships. Baddies only, good vibes guaranteed. <br />
+              Hosted by   <a href="https://www.instagram.com/qn_chattha97/" target="_blank" style={{ color: "#FF8E9E" }}>Qudsia</a>
+
             </p>
+
+
             <div className="hero-actions">
               {upcomingEvent ? (
                 <a href="#upcoming" className="btn btn-primary">
