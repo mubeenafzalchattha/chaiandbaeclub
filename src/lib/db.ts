@@ -27,7 +27,8 @@ export interface Booking {
   paymentId?: string;
 }
 
-const uri = process.env.MONGODB_URI || "mongodb://localhost:27017/chaiandbaeclub";
+// const uri = process.env.MONGODB_URI || "mongodb://localhost:27017/chaiandbaeclub";
+const uri = process.env.chaiandbae_MONGODB_URI || "mongodb://localhost:27017/chaiandbaeclub";
 let client: MongoClient;
 let dbInstance: Db;
 
