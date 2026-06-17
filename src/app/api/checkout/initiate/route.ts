@@ -91,7 +91,7 @@ export async function POST(req: NextRequest) {
         success_url: `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/checkout/confirm?bookingId=${bookingId}&status=success`,
         cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/checkout/${eventId}?error=cancelled`,
         failure_url: `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/checkout/${eventId}?error=failed`,
-        test: true,
+        test: false,
         allow_tips: false
       })
     });
