@@ -6,6 +6,7 @@ import { db } from "@/lib/db";
 import { formatCurrency } from "@/lib/utils";
 import Countdown from "./components/Countdown";
 import heroImage from "./assets/hero.jpg";
+import ShareButton from "./components/ShareButton";
 
 export default async function Home() {
   const events = await db.getEvents();
@@ -126,7 +127,30 @@ export default async function Home() {
               </div>
 
               <div className="featured-content">
-                <h3 className="featured-title">{upcomingEvent.title}</h3>
+
+
+                {/* <h3 className="featured-title">
+                  {upcomingEvent.title}
+                </h3>
+                <div style={{ display: "flex", alignItems: "left", gap: "10px", marginBottom: "12px" }}>
+                  <ShareButton event={upcomingEvent} />
+                </div> */}
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: "12px",
+                  }}
+                >
+                  <h3 className="featured-title" style={{ margin: 0 }}>
+                    {upcomingEvent.title}
+                  </h3>
+
+                  <ShareButton event={upcomingEvent} />
+                </div>
+
+
                 <p className="featured-description">{upcomingEvent.description}</p>
 
                 {/* Meta details list */}
@@ -165,9 +189,7 @@ export default async function Home() {
                     <div className="meta-icon">🌸</div>
                     <div className="meta-text">
                       <h5>Includes</h5>
-                      <p style={{ fontSize: "13px", fontWeight: "normal" }}>
-                        All materials, high tea, custom desserts, custom goodies bag
-                      </p>
+                      <p>{(upcomingEvent.include ?? "Nothing that is not mentioned.")}</p>
                     </div>
                   </div>
                 </div>

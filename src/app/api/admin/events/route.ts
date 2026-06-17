@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { id, title, description, date, time, location, price, deadline, maxSlots, image, status, instagramUrl } = body;
+    const { id, title, description, date, time, location, price, deadline, maxSlots, image, status, instagramUrl, include, exclude } = body;
 
     if (!title || !description || !date || !time || !location || price === undefined || !deadline || !maxSlots || !image) {
       return NextResponse.json({ message: "All required event parameters are required." }, { status: 400 });
@@ -65,7 +65,9 @@ export async function POST(req: NextRequest) {
       maxSlots: Number(maxSlots),
       image,
       status: status || "active",
-      instagramUrl: instagramUrl?.trim() || undefined
+      instagramUrl: instagramUrl?.trim() || undefined,
+      include: include || [],
+      exclude: exclude || []
     };
 
     const success = await db.createEvent(eventObj);

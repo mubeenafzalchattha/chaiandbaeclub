@@ -62,310 +62,154 @@ function SuccessContent() {
   const handleDownloadPDF = () => {
     if (!booking || !event) return;
 
-    // Landscape A5
-    const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a5" });
-    const W = 210, H = 148;
+    const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a5" });
+    const W = 148, H = 210;
 
-    // ── Background ──────────────────────────────────────────────────
+    // ── Plain white background ──────────────────────────────────
     doc.setFillColor(255, 255, 255);
     doc.rect(0, 0, W, H, "F");
 
-    // ── Art panel (left ~70mm wide) ─────────────────────────────────
-    const artW = 72;
-    doc.setFillColor(245, 230, 248); // pastel purple
-    doc.rect(0, 0, artW, H, "F");
+    // ── Blush card ──────────────────────────────────────────────
+    doc.setFillColor(253, 242, 245);
+    doc.roundedRect(8, 8, W - 16, H - 16, 6, 6, "F");
+    doc.setDrawColor(240, 200, 210);
+    doc.setLineWidth(0.4);
+    doc.roundedRect(8, 8, W - 16, H - 16, 6, 6, "S");
 
-    // Decorative blobs
-    doc.setFillColor(234, 212, 245);
-    doc.ellipse(58, 20, 24, 18, "F");
-    doc.setFillColor(200, 238, 224);
-    doc.ellipse(62, 110, 18, 14, "F");
-    doc.setFillColor(247, 212, 232);
-    doc.ellipse(45, 75, 16, 13, "F");
+    const pad = 18;
+    let y = 22;
 
-    // Paint palette circles (decorative)
-    const palette = [
-      { x: 52, y: 88, r: 4, rgb: [245, 184, 212] },
-      { x: 61, y: 83, r: 3, rgb: [160, 212, 184] },
-      { x: 66, y: 92, r: 3.5, rgb: [200, 168, 232] },
-      { x: 62, y: 101, r: 3, rgb: [240, 192, 144] },
-      { x: 53, y: 100, r: 3.5, rgb: [144, 200, 224] },
-      { x: 48, y: 92, r: 3, rgb: [240, 160, 192] },
-    ];
-    palette.forEach(p => {
-      doc.setFillColor(p.rgb[0], p.rgb[1], p.rgb[2]);
-      doc.circle(p.x, p.y, p.r, "F");
-    });
-    doc.setFillColor(232, 213, 245);
-    doc.circle(57, 92, 9, "F");
-
-    // Club name text
-    doc.setTextColor(90, 30, 120);
-    doc.setFont("Helvetica", "normal");
-    doc.setFontSize(7);
-    doc.setCharSpace(2);
-    doc.text("OFFICIAL ENTRY PASS", 8, 22);
-    doc.setCharSpace(0);
-
+    // ── Title ───────────────────────────────────────────────────
     doc.setFont("Helvetica", "bold");
     doc.setFontSize(17);
-    doc.setTextColor(60, 15, 90);
-    doc.text("Chai & Bae", 8, 35);
-    doc.text("Club Dubai", 8, 46);
+    doc.setTextColor(162, 50, 80);
+    doc.text("Booking Confirmed", pad, y);
+    y += 6;
 
-    doc.setFont("Helvetica", "italic");
-    doc.setFontSize(7.5);
-    doc.setTextColor(176, 122, 202);
-    doc.text("Art, chai & good company", 8, 55);
-
-    // Confirmed badge (bottom of art panel)
-    doc.setDrawColor(108, 191, 154);
-    doc.setLineWidth(0.4);
-    doc.roundedRect(8, H - 22, 54, 8, 3, 3, "D");
-    doc.setTextColor(42, 122, 82);
-    doc.setFont("Helvetica", "bold");
-    doc.setFontSize(6.5);
-    doc.setCharSpace(1);
-    doc.text("✓  CONFIRMED", 35, H - 16, { align: "center" });
-    doc.setCharSpace(0);
-
-    // ── Route bar ───────────────────────────────────────────────────
-    const routeY = 0, routeH = 28;
-    doc.setFillColor(124, 58, 173);
-    doc.rect(artW, routeY, W - artW, routeH, "F");
-
-    // YOU →✦→ DXB
-    doc.setTextColor(255, 255, 255);
-    doc.setFont("Helvetica", "bold");
-    doc.setFontSize(18);
-    doc.text("YOU", artW + 8, 18);
-    doc.setFontSize(7);
-    doc.setFont("Helvetica", "normal");
-    doc.setTextColor(255, 255, 255, 0.6);
-    doc.text("GUEST", artW + 8, 24);
-
-    doc.setFont("Helvetica", "normal");
-    doc.setFontSize(8);
-    doc.setTextColor(240, 192, 255);
-    doc.setCharSpace(0.5);
-    const eventLabel = (event.title || "Club Event").toUpperCase();
-    doc.text(eventLabel, (artW + W) / 2, 16, { align: "center" });
-    doc.setCharSpace(0);
-    doc.setFontSize(6.5);
-    doc.setTextColor(200, 160, 230);
-    doc.text("EVENING EXPERIENCE", (artW + W) / 2, 22, { align: "center" });
-
-    // Arrow line
-    doc.setDrawColor(200, 160, 230);
+    doc.setDrawColor(220, 180, 190);
     doc.setLineWidth(0.3);
-    doc.line(artW + 24, 14, (artW + W) / 2 - 22, 14);
-    doc.line((artW + W) / 2 + 22, 14, W - 28, 14);
+    doc.line(pad, y, W - pad, y);
+    y += 10;
 
-    doc.setTextColor(255, 255, 255);
+    // ── Event image + title/date ────────────────────────────────
+    const imgSize = 22;
+    try {
+      doc.addImage(event.image, "JPEG", pad, y, imgSize, imgSize, undefined, "FAST");
+      doc.setDrawColor(220, 180, 190);
+      doc.setLineWidth(0.3);
+      doc.roundedRect(pad, y, imgSize, imgSize, 2, 2, "S");
+    } catch {
+      doc.setFillColor(245, 225, 232);
+      doc.roundedRect(pad, y, imgSize, imgSize, 2, 2, "F");
+    }
+
+    const textX = pad + imgSize + 5;
     doc.setFont("Helvetica", "bold");
-    doc.setFontSize(18);
-    doc.text("DXB", W - 8, 18, { align: "right" });
-    doc.setFontSize(7);
+    doc.setFontSize(12);
+    doc.setTextColor(82, 50, 110);
+    doc.text(event.title, textX, y + 7);
+
     doc.setFont("Helvetica", "normal");
-    doc.setTextColor(200, 160, 230);
-    doc.text("DUBAI", W - 8, 24, { align: "right" });
+    doc.setFontSize(8.5);
+    doc.setTextColor(120, 100, 130);
+    doc.text(event.date, textX, y + 14);
 
-    // ── Main body ───────────────────────────────────────────────────
-    const bodyX = artW + 6;
-    const bodyY = routeH + 8;
+    y += imgSize + 12;
 
-    const fieldLabel = (text: string, x: number, y: number) => {
+    // ── Guest details ───────────────────────────────────────────
+    const detailRow = (labelTxt: string, valueTxt: string) => {
+      doc.setFont("Helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(80, 65, 95);
+      doc.text(labelTxt, pad, y);
+
       doc.setFont("Helvetica", "bold");
-      doc.setFontSize(6);
-      doc.setTextColor(176, 122, 202);
-      doc.setCharSpace(1.5);
-      doc.text(text.toUpperCase(), x, y);
-      doc.setCharSpace(0);
+      doc.setFontSize(9);
+      doc.setTextColor(55, 35, 70);
+      doc.text(valueTxt, W - pad, y, { align: "right" });
+      y += 9;
     };
 
-    const fieldValue = (text: string, x: number, y: number, size = 10, color = [42, 26, 53]) => {
-      doc.setFont("Helvetica", "bold");
-      doc.setFontSize(size);
-      doc.setTextColor(color[0], color[1], color[2]);
-      doc.text(text, x, y);
-    };
+    detailRow("Guest", booking.name);
+    detailRow("WhatsApp", booking.whatsapp);
+    detailRow("Email", booking.email);
+    detailRow("Time", event.time);
+    y += 3;
 
-    // Booking ID — full width highlight
-    doc.setFillColor(245, 230, 248);
-    doc.setDrawColor(209, 160, 235);
+    // ── Dashed divider ──────────────────────────────────────────
+    doc.setDrawColor(200, 180, 210);
     doc.setLineWidth(0.3);
-    doc.roundedRect(bodyX - 2, bodyY - 5, 88, 12, 2, 2, "FD");
+    let dx = pad;
+    while (dx < W - pad) {
+      doc.line(dx, y, Math.min(dx + 3, W - pad), y);
+      dx += 5;
+    }
+    y += 7;
 
-    fieldLabel("Confirmation Code", bodyX + 2, bodyY);
+    // ── Total Paid ──────────────────────────────────────────────
     doc.setFont("Helvetica", "bold");
     doc.setFontSize(13);
-    doc.setTextColor(124, 58, 173);
-    doc.setCharSpace(0.5);
-    doc.text(booking.id, bodyX + 2, bodyY + 6);
-    doc.setCharSpace(0);
+    doc.setTextColor(162, 50, 80);
+    doc.text("Total Paid", pad, y);
+    doc.text(formatCurrency(event.price), W - pad, y, { align: "right" });
+    y += 14;
 
-    // Guest info grid
-    const col1 = bodyX, col2 = bodyX + 48;
-    let gy = bodyY + 18;
-
-    fieldLabel("Guest Name", col1, gy);
-    fieldValue(booking.name, col1, gy + 5, 10);
-
-    fieldLabel("Date", col2, gy);
-    fieldValue(event.date || "", col2, gy + 5, 9.5);
-
-    gy += 16;
-    fieldLabel("WhatsApp", col1, gy);
-    fieldValue(booking.whatsapp, col1, gy + 5, 9);
-
-    fieldLabel("Time", col2, gy);
-    fieldValue(event.time || "", col2, gy + 5, 9.5);
-
-    gy += 16;
-    fieldLabel("Email", col1, gy);
-    const emailText = doc.splitTextToSize(booking.email, 82);
-    doc.setFont("Helvetica", "bold");
-    doc.setFontSize(8.5);
-    doc.setTextColor(42, 26, 53);
-    doc.text(emailText, col1, gy + 5);
-
-    // ── Divider line ────────────────────────────────────────────────
-    gy += 18;
-    doc.setDrawColor(212, 232, 218);
-    doc.setLineWidth(0.3);
-    doc.line(bodyX - 2, gy, bodyX + 86, gy);
-
-    // ── What's included ─────────────────────────────────────────────
-    gy += 6;
-    fieldLabel("What's Included", bodyX, gy);
-
-    const included: string[] = booking.included || [
-      "Canvas & paints",
-      "Guided painting session",
-      "All brushes & tools",
-      "Apron & easel",
-      "Take-home artwork",
-    ];
-
-    gy += 5;
-    doc.setFontSize(7.5);
-    doc.setFont("Helvetica", "normal");
-
-    const halfInc = Math.ceil(included.length / 2);
-    included.forEach((item, i) => {
-      const cx = i < halfInc ? col1 : col2;
-      const cy = gy + (i < halfInc ? i : i - halfInc) * 7;
-
-      // Green dot
-      doc.setFillColor(108, 191, 154);
-      doc.circle(cx, cy - 1.2, 1.2, "F");
-      doc.setTextColor(42, 61, 48);
-      doc.text(item, cx + 3.5, cy);
-    });
-
-    // ── Not included ────────────────────────────────────────────────
-    const incRows = Math.ceil(included.length / 2);
-    let excY = gy + incRows * 7 + 4;
-
-    fieldLabel("Not Included", bodyX, excY);
-    excY += 5;
-
-    const excluded = ["Food", "Drinks", "Transport"];
-    excluded.forEach((item, i) => {
-      const cx = bodyX + i * 30;
-      doc.setFillColor(232, 160, 184);
-      doc.roundedRect(cx, excY - 2.5, 2.5, 2.5, 0.5, 0.5, "F");
-      doc.setFontSize(7.5);
-      doc.setFont("Helvetica", "normal");
-      doc.setTextColor(107, 64, 80);
-      doc.text(item, cx + 4, excY);
-    });
-
-    // ── Stub (right column) ─────────────────────────────────────────
-    const stubX = W - 38;
-
-    // Stub background
-    doc.setFillColor(253, 244, 255);
-    doc.rect(stubX - 4, routeH, 42, H - routeH, "F");
-
-    // Dashed left border
-    doc.setDrawColor(224, 184, 240);
-    doc.setLineWidth(0.5);
-    for (let y = routeH + 4; y < H - 4; y += 5) {
-      doc.line(stubX - 4, y, stubX - 4, y + 3);
-    }
-    // Notch circles
-    doc.setFillColor(255, 255, 255);
-    doc.circle(stubX - 4, routeH, 3, "F");
-    doc.circle(stubX - 4, H, 3, "F");
-
-    // Stub content
-    const sX = stubX + 2;
-    doc.setTextColor(176, 122, 202);
-    doc.setFont("Helvetica", "bold");
-    doc.setFontSize(6);
-    doc.setCharSpace(1.2);
-    doc.text("BOOKING ID", sX, routeH + 10, { align: "center" });
-    doc.setCharSpace(0);
-
-    doc.setTextColor(90, 30, 120);
-    doc.setFont("Helvetica", "bold");
-    doc.setFontSize(7);
-    const idParts = booking.id.split("-");
-    idParts.forEach((part: string, i: number) => {
-      doc.text(part, sX, routeH + 17 + i * 6, { align: "center" });
-    });
-
-    // Stub divider
-    doc.setDrawColor(224, 184, 240);
-    doc.setLineWidth(0.3);
-    doc.line(stubX - 1, routeH + 38, W - 3, routeH + 38);
-
-    doc.setTextColor(176, 122, 202);
-    doc.setFont("Helvetica", "bold");
-    doc.setFontSize(6);
-    doc.setCharSpace(1);
-    doc.text("PASS NO.", sX, routeH + 46, { align: "center" });
-    doc.setCharSpace(0);
-
-    doc.setTextColor(124, 58, 173);
-    doc.setFont("Helvetica", "bold");
-    doc.setFontSize(20);
-    doc.text("A7", sX, routeH + 58, { align: "center" });
-
-    // Stub divider 2
-    doc.line(stubX - 1, routeH + 64, W - 3, routeH + 64);
-
-    // Barcode (decorative bars)
-    const barsStartY = routeH + 70;
-    const barHeights = [14, 10, 18, 8, 14, 10, 20, 8, 12, 16, 10, 18];
-    let bx = stubX - 1;
-    barHeights.forEach((bh, i) => {
-      doc.setFillColor(124, 58, 173);
-      const bw = i % 3 === 0 ? 2 : 1;
-      doc.setFillColor(124, 58, 173);
-      doc.rect(bx, barsStartY, bw, bh, "F");
-      bx += bw + 1.5;
-    });
-
-    doc.setTextColor(201, 160, 223);
-    doc.setFont("Helvetica", "normal");
-    doc.setFontSize(5.5);
-    doc.text("SCAN AT ENTRY", sX, barsStartY + 24, { align: "center" });
-
-    // ── Footer ──────────────────────────────────────────────────────
-    doc.setFillColor(245, 250, 247);
-    doc.rect(artW, H - 14, W - artW - 38, 14, "F");
-
-    doc.setFont("Helvetica", "italic");
-    doc.setFontSize(7);
-    doc.setTextColor(90, 138, 106);
-    doc.text(
-      "Venue shared via WhatsApp 24hrs before · Non-transferable · One admission",
-      artW + 8, H - 6
+    // ── Includes / Excludes ─────────────────────────────────────
+    const include = (event.include || []).filter(
+      (i: string) => i.toLowerCase() !== "food"
+    );
+    const exclude = (event.exclude || []).filter(
+      (i: string) => i.toLowerCase() !== "drink"
     );
 
-    doc.save(`chai_and_bae_ticket_${booking.id}.pdf`);
+    if (include.length > 0 || exclude.length > 0) {
+      const col1 = pad;
+      const col2 = W / 2 + 4;
+
+      doc.setFont("Helvetica", "bold");
+      doc.setFontSize(6.5);
+      doc.setTextColor(162, 135, 195);
+      if (include.length > 0) doc.text("INCLUDES", col1, y);
+      if (exclude.length > 0) doc.text("NOT INCLUDED", col2, y);
+      y += 5;
+
+      const maxRows = Math.max(include.length, exclude.length);
+      for (let i = 0; i < maxRows; i++) {
+        if (include[i]) {
+          doc.setFillColor(82, 130, 101);
+          doc.circle(col1 + 1.5, y - 1.2, 1.2, "F");
+          doc.setFont("Helvetica", "normal");
+          doc.setFontSize(8);
+          doc.setTextColor(42, 80, 55);
+          doc.text(include[i], col1 + 5, y);
+        }
+        if (exclude[i]) {
+          doc.setFillColor(224, 109, 125);
+          doc.circle(col2 + 1.5, y - 1.2, 1.2, "F");
+          doc.setFont("Helvetica", "normal");
+          doc.setFontSize(8);
+          doc.setTextColor(140, 70, 90);
+          doc.text(exclude[i], col2 + 5, y);
+        }
+        y += 6;
+      }
+    }
+
+    // ── Booking ID footer ───────────────────────────────────────
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(7);
+    doc.setTextColor(162, 135, 195);
+    doc.text("BOOKING ID", pad, H - 18);
+    doc.setFontSize(9);
+    doc.setTextColor(82, 50, 110);
+    doc.text(booking.id, pad, H - 12);
+
+    doc.setFont("Helvetica", "normal");
+    doc.setFontSize(7);
+    doc.setTextColor(180, 150, 170);
+    doc.text("chaiandbae.qnchattha.com", W - pad, H - 12, { align: "right" });
+
+    doc.save(`chai_and_bae_booking_${booking.id}.pdf`);
   };
 
 
@@ -438,12 +282,16 @@ function SuccessContent() {
           <div className="ticket">
             {/* Ticket Header Card */}
             <div className="ticket-header">
-              <span style={{ fontSize: "11px", fontWeight: "700", letterSpacing: "3px", textTransform: "uppercase", color: "var(--accent-pink-soft)" }}>
-                OFFICIAL RESERVATION PASS
+              <span className="ticket-badge">
+                ✓ BOOKING CONFIRMED
               </span>
-              <h1 style={{ marginTop: "8px", fontFamily: "var(--font-serif)" }}>{event?.title}</h1>
-              <p style={{ fontSize: "14px", marginTop: "4px", color: "var(--accent-pink-light)" }}>
-                Chai &amp; Bae Club Event
+
+              <h1 className="ticket-title">
+                {event?.title}
+              </h1>
+
+              <p className="ticket-subtitle">
+                Chai & Bae Club • Reservation Summary Pass
               </p>
             </div>
 
@@ -454,6 +302,27 @@ function SuccessContent() {
 
             {/* Ticket Body Content */}
             <div className="ticket-body">
+              <div style={{ display: "flex", gap: "12px", marginBottom: "18px", alignItems: "center" }}>
+                <img
+                  src={event.image}
+                  alt={event.title}
+                  style={{
+                    width: "64px",
+                    height: "64px",
+                    borderRadius: "10px",
+                    objectFit: "cover"
+                  }}
+                />
+
+                <div>
+                  <div style={{ fontSize: "13px", fontWeight: 700 }}>
+                    {event.title}
+                  </div>
+                  <div style={{ fontSize: "12px", color: "var(--text-muted)" }}>
+                    {event.date} • {event.time}
+                  </div>
+                </div>
+              </div>
               <div className="ticket-detail-grid">
                 <div className="ticket-detail-item">
                   <h5>CONFIRMATION CODE</h5>
@@ -490,6 +359,14 @@ function SuccessContent() {
                   <p>{event?.location.split(",")[0]}</p>
                   <p style={{ fontSize: "11px", color: "var(--accent-sage-dark)", fontWeight: "600", marginTop: "2px", lineHeight: "1.3" }}>
                     ✓ Exact venue shared on WhatsApp 1 day before event
+                  </p>
+                </div>
+
+                <div className="ticket-detail-item">
+                  <h5>Whats Included</h5>
+
+                  <p style={{ fontSize: "11px", color: "var(--accent-sage-dark)", fontWeight: "600", marginTop: "2px", lineHeight: "1.3" }}>
+                    {event.included}
                   </p>
                 </div>
               </div>

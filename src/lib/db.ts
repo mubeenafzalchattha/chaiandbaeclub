@@ -13,6 +13,8 @@ export interface Event {
   image: string;      // Image URL or identifier
   status: "active" | "draft" | "completed";
   instagramUrl?: string; // Link to past event instagram post
+  include?: string[]; // Items included in the event
+  exclude?: string[]; // Items excluded from the event
 }
 
 export interface Booking {

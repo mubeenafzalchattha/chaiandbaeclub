@@ -10,6 +10,14 @@ export const metadata: Metadata = {
     description: "Cozy spaces, beautiful connections. Join our next workshop or girls night out.",
     locale: "en_AE",
     type: "website",
+    images: [
+      {
+        url: "/og/og.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Chai & Bae Club",
+      },
+    ],
   }
 };
 

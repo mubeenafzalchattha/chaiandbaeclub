@@ -25,6 +25,8 @@ export default function AdminDashboardClient({ initialEvents, initialBookings }:
 
   // Create Event Form States
   const [eventId, setEventId] = useState("");
+  const [include, setInclude] = useState("");
+  const [exclude, setExclude] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [eventDate, setEventDate] = useState("");
@@ -196,6 +198,8 @@ export default function AdminDashboardClient({ initialEvents, initialBookings }:
           image,
           status,
           instagramUrl: instagramUrl.trim(),
+          include: include ? include.split(/\n|,/).map(s => s.trim()).filter(s => s) : undefined,
+          exclude: exclude ? exclude.split(/\n|,/).map(s => s.trim()).filter(s => s) : undefined,
         }),
       });
 
@@ -260,6 +264,8 @@ export default function AdminDashboardClient({ initialEvents, initialBookings }:
     setImage(event.image);
     setStatus(event.status);
     setInstagramUrl(event.instagramUrl || "");
+    setInclude(event.include ? event.include.join('\n') : "");
+    setExclude(event.exclude ? event.exclude.join('\n') : "");
     setActiveTab("create-event");
   };
 
@@ -776,6 +782,26 @@ export default function AdminDashboardClient({ initialEvents, initialBookings }:
                 </div>
                 <div className="form-group">
                     <label className="form-label">Instagram Post URL (Optional)</label>
+              </div>
+              <div className="form-group">
+                <label className="form-label">What’s Included (one per line)</label>
+                <textarea
+                  className="form-input"
+                  placeholder="Canvas & paints\nGuided painting session\n..."
+                  value={include}
+                  onChange={(e) => setInclude(e.target.value)}
+                  rows={4}
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">What’s NOT Included (one per line)</label>
+                <textarea
+                  className="form-input"
+                  placeholder="Food\nDrinks\nTransport"
+                  value={exclude}
+                  onChange={(e) => setExclude(e.target.value)}
+                  rows={3}
+                />
                     <input
                       type="url"
                       className="form-input"
