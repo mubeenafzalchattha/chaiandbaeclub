@@ -59,331 +59,315 @@ function SuccessContent() {
     fetchBookingDetails();
   }, [bookingId]);
 
-  // const handleDownloadPDF = () => {
-  //   if (!booking || !event) return;
-
-  //   const doc = new jsPDF({
-  //     orientation: "portrait",
-  //     unit: "mm",
-  //     format: "a5",
-  //   });
-
-  //   // Background Card
-  //   doc.setFillColor(250, 246, 240);
-  //   doc.rect(0, 0, 148, 210, "F");
-
-  //   // Top Header Ribbon
-  //   doc.setFillColor(93, 18, 37);
-  //   doc.rect(0, 0, 148, 30, "F");
-
-  //   // Header Text
-  //   doc.setTextColor(255, 240, 242);
-  //   doc.setFont("Helvetica", "bold");
-  //   doc.setFontSize(10);
-  //   doc.text("CHAI & BAE CLUB DUBAI", 74, 12, { align: "center" });
-  //   doc.setFontSize(14);
-  //   doc.text("OFFICIAL ENTRY PASS", 74, 20, { align: "center" });
-
-  //   // Divider
-  //   doc.setDrawColor(255, 142, 158);
-  //   doc.setLineWidth(0.5);
-  //   doc.line(10, 38, 138, 38);
-
-  //   // Event Title
-  //   doc.setTextColor(93, 18, 37);
-  //   doc.setFont("Helvetica", "bold");
-  //   doc.setFontSize(15);
-  //   doc.text(event.title || "Club Event Pass", 74, 48, { align: "center" });
-
-  //   // Border container
-  //   doc.setDrawColor(224, 109, 125);
-  //   doc.rect(10, 58, 128, 122);
-
-  //   // Grid details
-  //   doc.setFontSize(9);
-  //   doc.setTextColor(107, 91, 87);
-  //   doc.setFont("Helvetica", "normal");
-
-  //   // Left side info
-  //   doc.text("CONFIRMATION CODE", 15, 68);
-  //   doc.setFont("Helvetica", "bold");
-  //   doc.setTextColor(93, 18, 37);
-  //   doc.setFontSize(12);
-  //   doc.text(booking.id, 15, 74);
-
-  //   doc.setFontSize(9);
-  //   doc.setTextColor(107, 91, 87);
-  //   doc.setFont("Helvetica", "normal");
-  //   doc.text("GUEST NAME", 15, 90);
-  //   doc.setFont("Helvetica", "bold");
-  //   doc.setTextColor(44, 30, 27);
-  //   doc.setFontSize(11);
-  //   doc.text(booking.name, 15, 96);
-
-  //   doc.setFontSize(9);
-  //   doc.setTextColor(107, 91, 87);
-  //   doc.setFont("Helvetica", "normal");
-  //   doc.text("WHATSAPP CONTACT", 15, 112);
-  //   doc.setFont("Helvetica", "bold");
-  //   doc.setTextColor(44, 30, 27);
-  //   doc.setFontSize(11);
-  //   doc.text(booking.whatsapp, 15, 118);
-
-  //   // Right side info
-  //   doc.setFontSize(9);
-  //   doc.setTextColor(107, 91, 87);
-  //   doc.setFont("Helvetica", "normal");
-  //   doc.text("EVENT TIMING", 80, 68);
-  //   doc.setFont("Helvetica", "bold");
-  //   doc.setTextColor(44, 30, 27);
-  //   doc.setFontSize(11);
-  //   doc.text(event.date || "", 80, 74);
-  //   doc.setFont("Helvetica", "normal");
-  //   doc.setFontSize(10);
-  //   doc.text(event.time || "", 80, 80);
-
-  //   doc.setFontSize(9);
-  //   doc.setTextColor(107, 91, 87);
-  //   doc.setFont("Helvetica", "normal");
-  //   doc.text("VENUE PLACE", 80, 96);
-  //   doc.setFont("Helvetica", "bold");
-  //   doc.setTextColor(44, 30, 27);
-  //   doc.setFontSize(11);
-  //   doc.text(event.location.split(",")[0], 80, 102);
-
-  //   doc.setFontSize(9);
-  //   doc.setTextColor(107, 91, 87);
-  //   doc.setFont("Helvetica", "normal");
-  //   doc.text("EMAIL ADDRESS", 80, 112);
-  //   doc.setFont("Helvetica", "bold");
-  //   doc.setTextColor(44, 30, 27);
-  //   doc.setFontSize(10);
-  //   const splitEmail = doc.splitTextToSize(booking.email, 50);
-  //   doc.text(splitEmail, 80, 118);
-
-  //   // Divider line
-  //   doc.setDrawColor(224, 109, 125);
-  //   doc.line(10, 135, 138, 135);
-
-  //   // Important notes
-  //   doc.setFontSize(9);
-  //   doc.setTextColor(92, 123, 108);
-  //   doc.setFont("Helvetica", "bold");
-  //   doc.text("IMPORTANT VENUE DETAILS", 74, 142, { align: "center" });
-
-  //   doc.setFontSize(8.5);
-  //   doc.setTextColor(107, 91, 87);
-  //   doc.setFont("Helvetica", "normal");
-  //   doc.text("The exact venue coordinates in Dubai will be shared", 74, 150, { align: "center" });
-  //   doc.text("via WhatsApp (+971) one day before the event.", 74, 155, { align: "center" });
-
-  //   // Seal
-  //   doc.setDrawColor(92, 123, 108);
-  //   doc.setLineWidth(1);
-  //   doc.circle(74, 185, 12, "D");
-  //   doc.setFontSize(8);
-  //   doc.setTextColor(92, 123, 108);
-  //   doc.setFont("Helvetica", "bold");
-  //   doc.text("CONFIRMED", 74, 183, { align: "center" });
-  //   doc.setFontSize(6);
-  //   doc.text("BAE CLUB LEDGER", 74, 188, { align: "center" });
-
-  //   doc.save(`chai_and_bae_ticket_${booking.id}.pdf`);
-  // };
-
   const handleDownloadPDF = () => {
     if (!booking || !event) return;
 
-    const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a5" });
-    const W = 148, H = 210;
+    // Landscape A5
+    const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a5" });
+    const W = 210, H = 148;
 
     // ── Background ──────────────────────────────────────────────────
-    doc.setFillColor(250, 246, 240);
+    doc.setFillColor(255, 255, 255);
     doc.rect(0, 0, W, H, "F");
 
-    // ── Header ribbon ───────────────────────────────────────────────
-    doc.setFillColor(93, 18, 37);
-    doc.rect(0, 0, W, 38, "F");
+    // ── Art panel (left ~70mm wide) ─────────────────────────────────
+    const artW = 72;
+    doc.setFillColor(245, 230, 248); // pastel purple
+    doc.rect(0, 0, artW, H, "F");
 
-    // Subtle circle decoration in header
-    doc.setDrawColor(255, 240, 242);
-    doc.setLineWidth(0.3);
-    doc.setFillColor(255, 240, 242);
-    // (jsPDF circle is outline-only; we skip the decorative circle for clean output)
+    // Decorative blobs
+    doc.setFillColor(234, 212, 245);
+    doc.ellipse(58, 20, 24, 18, "F");
+    doc.setFillColor(200, 238, 224);
+    doc.ellipse(62, 110, 18, 14, "F");
+    doc.setFillColor(247, 212, 232);
+    doc.ellipse(45, 75, 16, 13, "F");
 
-    // Eyebrow label
-    doc.setTextColor(255, 142, 158);
+    // Paint palette circles (decorative)
+    const palette = [
+      { x: 52, y: 88, r: 4, rgb: [245, 184, 212] },
+      { x: 61, y: 83, r: 3, rgb: [160, 212, 184] },
+      { x: 66, y: 92, r: 3.5, rgb: [200, 168, 232] },
+      { x: 62, y: 101, r: 3, rgb: [240, 192, 144] },
+      { x: 53, y: 100, r: 3.5, rgb: [144, 200, 224] },
+      { x: 48, y: 92, r: 3, rgb: [240, 160, 192] },
+    ];
+    palette.forEach(p => {
+      doc.setFillColor(p.rgb[0], p.rgb[1], p.rgb[2]);
+      doc.circle(p.x, p.y, p.r, "F");
+    });
+    doc.setFillColor(232, 213, 245);
+    doc.circle(57, 92, 9, "F");
+
+    // Club name text
+    doc.setTextColor(90, 30, 120);
     doc.setFont("Helvetica", "normal");
     doc.setFontSize(7);
-    doc.setCharSpace(2.5);
-    doc.text("OFFICIAL ENTRY PASS", 74, 10, { align: "center" });
-    doc.setCharSpace(0);
-
-    // Club name
-    doc.setTextColor(255, 240, 242);
-    doc.setFont("Helvetica", "bold");
-    doc.setFontSize(16);
-    doc.text("CHAI & BAE CLUB DUBAI", 74, 20, { align: "center" });
-
-    // Members line
-    doc.setFont("Helvetica", "normal");
-    doc.setFontSize(7);
-    doc.setTextColor(255, 240, 242);
     doc.setCharSpace(2);
-    doc.text("MEMBERS & GUESTS", 74, 29, { align: "center" });
+    doc.text("OFFICIAL ENTRY PASS", 8, 22);
     doc.setCharSpace(0);
 
-    // ── Event banner (darker burgundy strip) ────────────────────────
-    doc.setFillColor(110, 25, 45);
-    doc.rect(0, 38, W, 14, "F");
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(17);
+    doc.setTextColor(60, 15, 90);
+    doc.text("Chai & Bae", 8, 35);
+    doc.text("Club Dubai", 8, 46);
 
-    doc.setTextColor(255, 214, 222);
     doc.setFont("Helvetica", "italic");
-    doc.setFontSize(11);
-    doc.text(event.title || "Club Event Pass", 15, 47);
+    doc.setFontSize(7.5);
+    doc.setTextColor(176, 122, 202);
+    doc.text("Art, chai & good company", 8, 55);
 
-    // Confirmed badge (right-aligned)
-    doc.setDrawColor(92, 123, 108);
+    // Confirmed badge (bottom of art panel)
+    doc.setDrawColor(108, 191, 154);
     doc.setLineWidth(0.4);
-    doc.roundedRect(108, 42, 30, 7, 3, 3, "D");
-    doc.setTextColor(92, 123, 108);
+    doc.roundedRect(8, H - 22, 54, 8, 3, 3, "D");
+    doc.setTextColor(42, 122, 82);
     doc.setFont("Helvetica", "bold");
     doc.setFontSize(6.5);
     doc.setCharSpace(1);
-    doc.text("✓  CONFIRMED", 123, 47, { align: "center" });
+    doc.text("✓  CONFIRMED", 35, H - 16, { align: "center" });
     doc.setCharSpace(0);
 
-    // ── Info grid border ────────────────────────────────────────────
-    const gridX = 12, gridY = 58, gridW = 124, gridH = 66;
-    doc.setDrawColor(224, 109, 125);
-    doc.setLineWidth(0.4);
-    doc.roundedRect(gridX, gridY, gridW, gridH, 3, 3, "D");
+    // ── Route bar ───────────────────────────────────────────────────
+    const routeY = 0, routeH = 28;
+    doc.setFillColor(124, 58, 173);
+    doc.rect(artW, routeY, W - artW, routeH, "F");
 
-    // Grid internal lines
-    doc.setDrawColor(240, 196, 204);
-    doc.setLineWidth(0.3);
-    // Vertical center divider (rows 2–4)
-    doc.line(74, gridY + 16, 74, gridY + gridH);
-    // Horizontal separators
-    doc.line(gridX, gridY + 16, gridX + gridW, gridY + 16); // below code
-    doc.line(gridX, gridY + 33, gridX + gridW, gridY + 33); // below row 2
-    doc.line(gridX, gridY + 50, gridX + gridW, gridY + 50); // below row 3
-
-    const label = (text: string, x: number, y: number) => {
-      doc.setFont("Helvetica", "normal");
-      doc.setFontSize(6.5);
-      doc.setTextColor(160, 128, 122);
-      doc.setCharSpace(1.5);
-      doc.text(text, x, y);
-      doc.setCharSpace(0);
-    };
-
-    const value = (text: string, x: number, y: number, size = 10.5) => {
-      doc.setFont("Helvetica", "bold");
-      doc.setFontSize(size);
-      doc.setTextColor(44, 30, 27);
-      doc.text(text, x, y);
-    };
-
-    // Row 1 — Confirmation code (full width)
-    label("CONFIRMATION CODE", 17, 65);
+    // YOU →✦→ DXB
+    doc.setTextColor(255, 255, 255);
     doc.setFont("Helvetica", "bold");
-    doc.setFontSize(13);
-    doc.setTextColor(93, 18, 37);
-    doc.setCharSpace(1);
-    doc.text(booking.id, 17, 73);
-    doc.setCharSpace(0);
-
-    // Row 2 — Name / Date
-    label("GUEST NAME", 17, 81);
-    value(booking.name, 17, 88);
-
-    label("EVENT TIMING", 77, 81);
-    doc.setFont("Helvetica", "bold");
-    doc.setFontSize(9.5);
-    doc.setTextColor(44, 30, 27);
-    doc.text(event.date || "", 77, 88);
+    doc.setFontSize(18);
+    doc.text("YOU", artW + 8, 18);
+    doc.setFontSize(7);
     doc.setFont("Helvetica", "normal");
-    doc.setFontSize(8.5);
-    doc.setTextColor(120, 95, 90);
-    doc.text(event.time || "", 77, 93);
-
-    // Row 3 — WhatsApp / Venue
-    label("WHATSAPP CONTACT", 17, 98);
-    value(booking.whatsapp, 17, 105);
-
-    label("VENUE", 77, 98);
-    value(event.location.split(",")[0], 77, 105, 9.5);
-
-    // Row 4 — Email
-    label("EMAIL ADDRESS", 17, 115);
-    doc.setFont("Helvetica", "bold");
-    doc.setFontSize(9);
-    doc.setTextColor(44, 30, 27);
-    const splitEmail = doc.splitTextToSize(booking.email, 115);
-    doc.text(splitEmail, 17, 121);
-
-    // ── Venue hint box ──────────────────────────────────────────────
-    doc.setFillColor(235, 245, 240);
-    doc.setDrawColor(92, 123, 108);
-    doc.setLineWidth(0.35);
-    doc.roundedRect(12, 130, 124, 20, 3, 3, "FD");
-
-    doc.setFont("Helvetica", "bold");
-    doc.setFontSize(6.5);
-    doc.setTextColor(74, 110, 94);
-    doc.setCharSpace(1.5);
-    doc.text("IMPORTANT — VENUE DETAILS", 74, 137, { align: "center" });
-    doc.setCharSpace(0);
+    doc.setTextColor(255, 255, 255, 0.6);
+    doc.text("GUEST", artW + 8, 24);
 
     doc.setFont("Helvetica", "normal");
     doc.setFontSize(8);
-    doc.setTextColor(92, 123, 108);
-    doc.text(
-      "Exact coordinates in Dubai will be shared via WhatsApp (+971)",
-      74, 143, { align: "center" }
-    );
-    doc.text("one day before the event.", 74, 148, { align: "center" });
-
-    // ── Tearline ────────────────────────────────────────────────────
-    doc.setDrawColor(232, 197, 204);
-    doc.setLineWidth(0.5);
-    // Dashed line: draw as short segments
-    const dashY = 158;
-    for (let x = 14; x < 134; x += 5) {
-      doc.line(x, dashY, Math.min(x + 3, 134), dashY);
-    }
-    // Small diamond in center
-    doc.setFillColor(232, 197, 204);
-    const cx = 74, cy = dashY;
-    doc.setDrawColor(224, 109, 125);
-    doc.circle(cx, cy, 2, "FD");
-
-    // ── Footer ──────────────────────────────────────────────────────
-    doc.setFillColor(253, 241, 243);
-    doc.rect(0, 163, W, H - 163, "F");
-
-    // Ledger seal — pill badge
-    doc.setDrawColor(92, 123, 108);
-    doc.setLineWidth(0.4);
-    doc.roundedRect(49, 170, 50, 9, 4, 4, "D");
-    doc.setTextColor(92, 123, 108);
-    doc.setFont("Helvetica", "bold");
+    doc.setTextColor(240, 192, 255);
+    doc.setCharSpace(0.5);
+    const eventLabel = (event.title || "Club Event").toUpperCase();
+    doc.text(eventLabel, (artW + W) / 2, 16, { align: "center" });
+    doc.setCharSpace(0);
     doc.setFontSize(6.5);
-    doc.setCharSpace(1.5);
-    doc.text("BAE CLUB LEDGER", 74, 176, { align: "center" });
+    doc.setTextColor(200, 160, 230);
+    doc.text("EVENING EXPERIENCE", (artW + W) / 2, 22, { align: "center" });
+
+    // Arrow line
+    doc.setDrawColor(200, 160, 230);
+    doc.setLineWidth(0.3);
+    doc.line(artW + 24, 14, (artW + W) / 2 - 22, 14);
+    doc.line((artW + W) / 2 + 22, 14, W - 28, 14);
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(18);
+    doc.text("DXB", W - 8, 18, { align: "right" });
+    doc.setFontSize(7);
+    doc.setFont("Helvetica", "normal");
+    doc.setTextColor(200, 160, 230);
+    doc.text("DUBAI", W - 8, 24, { align: "right" });
+
+    // ── Main body ───────────────────────────────────────────────────
+    const bodyX = artW + 6;
+    const bodyY = routeH + 8;
+
+    const fieldLabel = (text: string, x: number, y: number) => {
+      doc.setFont("Helvetica", "bold");
+      doc.setFontSize(6);
+      doc.setTextColor(176, 122, 202);
+      doc.setCharSpace(1.5);
+      doc.text(text.toUpperCase(), x, y);
+      doc.setCharSpace(0);
+    };
+
+    const fieldValue = (text: string, x: number, y: number, size = 10, color = [42, 26, 53]) => {
+      doc.setFont("Helvetica", "bold");
+      doc.setFontSize(size);
+      doc.setTextColor(color[0], color[1], color[2]);
+      doc.text(text, x, y);
+    };
+
+    // Booking ID — full width highlight
+    doc.setFillColor(245, 230, 248);
+    doc.setDrawColor(209, 160, 235);
+    doc.setLineWidth(0.3);
+    doc.roundedRect(bodyX - 2, bodyY - 5, 88, 12, 2, 2, "FD");
+
+    fieldLabel("Confirmation Code", bodyX + 2, bodyY);
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(13);
+    doc.setTextColor(124, 58, 173);
+    doc.setCharSpace(0.5);
+    doc.text(booking.id, bodyX + 2, bodyY + 6);
     doc.setCharSpace(0);
 
-    // Footer fine print
-    doc.setFont("Helvetica", "normal");
+    // Guest info grid
+    const col1 = bodyX, col2 = bodyX + 48;
+    let gy = bodyY + 18;
+
+    fieldLabel("Guest Name", col1, gy);
+    fieldValue(booking.name, col1, gy + 5, 10);
+
+    fieldLabel("Date", col2, gy);
+    fieldValue(event.date || "", col2, gy + 5, 9.5);
+
+    gy += 16;
+    fieldLabel("WhatsApp", col1, gy);
+    fieldValue(booking.whatsapp, col1, gy + 5, 9);
+
+    fieldLabel("Time", col2, gy);
+    fieldValue(event.time || "", col2, gy + 5, 9.5);
+
+    gy += 16;
+    fieldLabel("Email", col1, gy);
+    const emailText = doc.splitTextToSize(booking.email, 82);
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(8.5);
+    doc.setTextColor(42, 26, 53);
+    doc.text(emailText, col1, gy + 5);
+
+    // ── Divider line ────────────────────────────────────────────────
+    gy += 18;
+    doc.setDrawColor(212, 232, 218);
+    doc.setLineWidth(0.3);
+    doc.line(bodyX - 2, gy, bodyX + 86, gy);
+
+    // ── What's included ─────────────────────────────────────────────
+    gy += 6;
+    fieldLabel("What's Included", bodyX, gy);
+
+    const included: string[] = booking.included || [
+      "Canvas & paints",
+      "Guided painting session",
+      "All brushes & tools",
+      "Apron & easel",
+      "Take-home artwork",
+    ];
+
+    gy += 5;
     doc.setFontSize(7.5);
-    doc.setTextColor(138, 112, 112);
-    doc.text("Present this pass at entry · Non-transferable · One admission", 74, 188, {
-      align: "center",
+    doc.setFont("Helvetica", "normal");
+
+    const halfInc = Math.ceil(included.length / 2);
+    included.forEach((item, i) => {
+      const cx = i < halfInc ? col1 : col2;
+      const cy = gy + (i < halfInc ? i : i - halfInc) * 7;
+
+      // Green dot
+      doc.setFillColor(108, 191, 154);
+      doc.circle(cx, cy - 1.2, 1.2, "F");
+      doc.setTextColor(42, 61, 48);
+      doc.text(item, cx + 3.5, cy);
     });
+
+    // ── Not included ────────────────────────────────────────────────
+    const incRows = Math.ceil(included.length / 2);
+    let excY = gy + incRows * 7 + 4;
+
+    fieldLabel("Not Included", bodyX, excY);
+    excY += 5;
+
+    const excluded = ["Food", "Drinks", "Transport"];
+    excluded.forEach((item, i) => {
+      const cx = bodyX + i * 30;
+      doc.setFillColor(232, 160, 184);
+      doc.roundedRect(cx, excY - 2.5, 2.5, 2.5, 0.5, 0.5, "F");
+      doc.setFontSize(7.5);
+      doc.setFont("Helvetica", "normal");
+      doc.setTextColor(107, 64, 80);
+      doc.text(item, cx + 4, excY);
+    });
+
+    // ── Stub (right column) ─────────────────────────────────────────
+    const stubX = W - 38;
+
+    // Stub background
+    doc.setFillColor(253, 244, 255);
+    doc.rect(stubX - 4, routeH, 42, H - routeH, "F");
+
+    // Dashed left border
+    doc.setDrawColor(224, 184, 240);
+    doc.setLineWidth(0.5);
+    for (let y = routeH + 4; y < H - 4; y += 5) {
+      doc.line(stubX - 4, y, stubX - 4, y + 3);
+    }
+    // Notch circles
+    doc.setFillColor(255, 255, 255);
+    doc.circle(stubX - 4, routeH, 3, "F");
+    doc.circle(stubX - 4, H, 3, "F");
+
+    // Stub content
+    const sX = stubX + 2;
+    doc.setTextColor(176, 122, 202);
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(6);
+    doc.setCharSpace(1.2);
+    doc.text("BOOKING ID", sX, routeH + 10, { align: "center" });
+    doc.setCharSpace(0);
+
+    doc.setTextColor(90, 30, 120);
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(7);
+    const idParts = booking.id.split("-");
+    idParts.forEach((part: string, i: number) => {
+      doc.text(part, sX, routeH + 17 + i * 6, { align: "center" });
+    });
+
+    // Stub divider
+    doc.setDrawColor(224, 184, 240);
+    doc.setLineWidth(0.3);
+    doc.line(stubX - 1, routeH + 38, W - 3, routeH + 38);
+
+    doc.setTextColor(176, 122, 202);
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(6);
+    doc.setCharSpace(1);
+    doc.text("PASS NO.", sX, routeH + 46, { align: "center" });
+    doc.setCharSpace(0);
+
+    doc.setTextColor(124, 58, 173);
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(20);
+    doc.text("A7", sX, routeH + 58, { align: "center" });
+
+    // Stub divider 2
+    doc.line(stubX - 1, routeH + 64, W - 3, routeH + 64);
+
+    // Barcode (decorative bars)
+    const barsStartY = routeH + 70;
+    const barHeights = [14, 10, 18, 8, 14, 10, 20, 8, 12, 16, 10, 18];
+    let bx = stubX - 1;
+    barHeights.forEach((bh, i) => {
+      doc.setFillColor(124, 58, 173);
+      const bw = i % 3 === 0 ? 2 : 1;
+      doc.setFillColor(124, 58, 173);
+      doc.rect(bx, barsStartY, bw, bh, "F");
+      bx += bw + 1.5;
+    });
+
+    doc.setTextColor(201, 160, 223);
+    doc.setFont("Helvetica", "normal");
+    doc.setFontSize(5.5);
+    doc.text("SCAN AT ENTRY", sX, barsStartY + 24, { align: "center" });
+
+    // ── Footer ──────────────────────────────────────────────────────
+    doc.setFillColor(245, 250, 247);
+    doc.rect(artW, H - 14, W - artW - 38, 14, "F");
+
+    doc.setFont("Helvetica", "italic");
+    doc.setFontSize(7);
+    doc.setTextColor(90, 138, 106);
+    doc.text(
+      "Venue shared via WhatsApp 24hrs before · Non-transferable · One admission",
+      artW + 8, H - 6
+    );
 
     doc.save(`chai_and_bae_ticket_${booking.id}.pdf`);
   };
+
 
   if (loading) {
     return <SuccessFallback />;
