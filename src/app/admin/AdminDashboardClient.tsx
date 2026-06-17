@@ -34,6 +34,7 @@ export default function AdminDashboardClient({ initialEvents, initialBookings }:
   const [deadline, setDeadline] = useState("");
   const [maxSlots, setMaxSlots] = useState(15);
   const [image, setImage] = useState(IMAGE_PRESETS[0].url);
+  const [instagramUrl, setInstagramUrl] = useState("");
   const [status, setStatus] = useState<"active" | "draft" | "completed">("active");
   const [uploading, setUploading] = useState(false);
   
@@ -194,6 +195,7 @@ export default function AdminDashboardClient({ initialEvents, initialBookings }:
           maxSlots: Number(maxSlots),
           image,
           status,
+          instagramUrl: instagramUrl.trim(),
         }),
       });
 
@@ -221,6 +223,7 @@ export default function AdminDashboardClient({ initialEvents, initialBookings }:
       setDeadline("");
       setMaxSlots(15);
       setImage(IMAGE_PRESETS[0].url);
+      setInstagramUrl("");
       setStatus("active");
       
       // Switch back to events tab
@@ -256,6 +259,7 @@ export default function AdminDashboardClient({ initialEvents, initialBookings }:
     setMaxSlots(event.maxSlots);
     setImage(event.image);
     setStatus(event.status);
+    setInstagramUrl(event.instagramUrl || "");
     setActiveTab("create-event");
   };
 
@@ -770,6 +774,16 @@ export default function AdminDashboardClient({ initialEvents, initialBookings }:
                     <option value="completed">Completed (Archives under Past Events)</option>
                   </select>
                 </div>
+                <div className="form-group">
+                    <label className="form-label">Instagram Post URL (Optional)</label>
+                    <input
+                      type="url"
+                      className="form-input"
+                      placeholder="https://www.instagram.com/..."
+                      value={instagramUrl}
+                      onChange={(e) => setInstagramUrl(e.target.value)}
+                    />
+                </div>
               </div>
 
               <div style={{ display: "flex", gap: "16px", marginTop: "12px" }}>
@@ -786,6 +800,7 @@ export default function AdminDashboardClient({ initialEvents, initialBookings }:
                   onClick={() => {
                     setActiveTab("events");
                     setEventId("");
+                    setInstagramUrl("");
                   }}
                   className="btn btn-secondary"
                   style={{ padding: "14px 28px" }}

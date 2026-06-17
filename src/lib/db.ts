@@ -41,7 +41,7 @@ async function getDb(): Promise<Db> {
   }
 
   dbInstance = client.db();
-  await seedDb(dbInstance);
+  // Seed data is no longer needed; removed to rely entirely on DB contents.
   return dbInstance;
 }
 

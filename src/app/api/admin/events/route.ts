@@ -35,10 +35,10 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { id, title, description, date, time, location, price, deadline, maxSlots, image, status } = body;
+    const { id, title, description, date, time, location, price, deadline, maxSlots, image, status, instagramUrl } = body;
 
     if (!title || !description || !date || !time || !location || price === undefined || !deadline || !maxSlots || !image) {
-      return NextResponse.json({ message: "All event parameters are required." }, { status: 400 });
+      return NextResponse.json({ message: "All required event parameters are required." }, { status: 400 });
     }
 
     const eventId = id || title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
@@ -64,7 +64,8 @@ export async function POST(req: NextRequest) {
       deadline: new Date(deadline).toISOString(),
       maxSlots: Number(maxSlots),
       image,
-      status: status || "active"
+      status: status || "active",
+      instagramUrl: instagramUrl?.trim() || undefined
     };
 
     const success = await db.createEvent(eventObj);
