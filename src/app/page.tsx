@@ -21,12 +21,15 @@ export default async function Home() {
   let paidBookingsCount = 0;
   let isSoldOut = false;
   let isDeadlinePassed = false;
+  let spotsLeft = 0;
 
   if (upcomingEvent) {
     const eventBookings = await db.getBookingsByEventId(upcomingEvent.id);
     paidBookingsCount = eventBookings.filter((b) => b.status === "paid").length;
     isSoldOut = paidBookingsCount >= upcomingEvent.maxSlots;
     isDeadlinePassed = new Date(upcomingEvent.deadline).getTime() < Date.now();
+    spotsLeft = upcomingEvent.maxSlots - paidBookingsCount;
+
   }
 
   return (
@@ -197,16 +200,18 @@ export default async function Home() {
                 {/* Slots progress bar */}
                 <div className="slots-progress-wrapper">
                   <div className="slots-label">
-                    <span>Community Spots Reserved</span>
-                    <span>
-                      {paidBookingsCount} / {upcomingEvent.maxSlots} Booked
-                    </span>
+                    <span>Community Spots Left</span>
+                    <span>Only {spotsLeft} spots remaining</span>
                   </div>
+
                   <div className="slots-progress-bar">
                     <div
                       className="slots-progress-fill"
-                      style={{ width: `${(paidBookingsCount / upcomingEvent.maxSlots) * 100}%` }}
-                    ></div>
+                      style={{
+                        width: `${(paidBookingsCount / upcomingEvent.maxSlots) * 100}%`,
+                        // width: `${(spotsLeft / upcomingEvent.maxSlots) * 100}%`
+                      }}
+                    />
                   </div>
                 </div>
 
