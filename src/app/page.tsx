@@ -154,7 +154,7 @@ export default async function Home() {
                 </div>
 
 
-                <p className="featured-description">{upcomingEvent.description}</p>
+                <p className="featured-description featured-description">{upcomingEvent.description}</p>
 
                 {/* Meta details list */}
                 <div className="meta-grid">

@@ -536,6 +536,10 @@ h1, h2, h3, h4, .font-serif {
   margin-bottom: 32px;
 }
 
+.featured-description {
+  white-space: pre-wrap;
+}
+
 .meta-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
