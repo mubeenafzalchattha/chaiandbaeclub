@@ -269,16 +269,18 @@ export default function AdminDashboardClient({ initialEvents, initialBookings }:
     setActiveTab("create-event");
   };
 
-  // Filter Bookings List
-  const filteredBookings = bookings.filter((b) => {
-    const matchesEvent = selectedEventId === "all" || b.eventId === selectedEventId;
-    const matchesSearch =
-      b.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      b.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      b.whatsapp.includes(searchQuery) ||
-      b.id.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesEvent && matchesSearch;
-  });
+  // Filter Bookings List (newest first)
+  const filteredBookings = bookings
+    .filter((b) => {
+      const matchesEvent = selectedEventId === "all" || b.eventId === selectedEventId;
+      const matchesSearch =
+        b.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        b.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        b.whatsapp.includes(searchQuery) ||
+        b.id.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesEvent && matchesSearch;
+    })
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   // Dynamic CSV Generation & Downloader
   const handleDownloadCSV = () => {
@@ -566,7 +568,11 @@ export default function AdminDashboardClient({ initialEvents, initialBookings }:
             <h3 style={{ fontSize: "20px", marginBottom: "20px" }}>Events Schedule Planner</h3>
             
             <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-              {events.map((e) => (
+              {[...events]
+                .sort((a, b) =>
+                  new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime()
+                )
+                .map((e) => (
                 <div 
                   key={e.id} 
                   className="admin-event-card"
@@ -594,6 +600,11 @@ export default function AdminDashboardClient({ initialEvents, initialBookings }:
                       <span>📍 {e.location.split(",")[0]}</span>
                       <span>💸 {formatCurrency(e.price)}</span>
                       <span>🎟️ Max Slots: {e.maxSlots}</span>
+                      {e.createdAt && (
+                        <span style={{ fontSize: "11px", color: "var(--text-muted)" }}>
+                          🕐 Created: {new Date(e.createdAt).toLocaleString("en-AE", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                        </span>
+                      )}
                     </div>
                   </div>
 
