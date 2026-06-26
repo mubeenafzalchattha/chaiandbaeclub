@@ -43,16 +43,6 @@ export async function POST(req: NextRequest) {
 
     const eventId = id || title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
-    // If making this event active, set all previous active events as completed
-    if (status === "active") {
-      const currentEvents = await db.getEvents();
-      for (const e of currentEvents) {
-        if (e.status === "active" && e.id !== eventId) {
-          await db.updateEvent(e.id, { status: "completed" });
-        }
-      }
-    }
-
     const eventObj = {
       id: eventId,
       title,
@@ -70,6 +60,7 @@ export async function POST(req: NextRequest) {
       exclude: exclude || []
     };
 
+    // createdAt is stamped via $setOnInsert in db.createEvent (only on first insert)
     const success = await db.createEvent(eventObj);
 
     if (!success) {

@@ -11,26 +11,23 @@ import ShareButton from "./components/ShareButton";
 export default async function Home() {
   const events = await db.getEvents();
 
-  // Find current active event
-  const upcomingEvent = events.find((e) => e.status === "active");
+  // Find all active events
+  const activeEvents = events.filter((e) => e.status === "active");
 
   // Filter out completed past events
   const pastEvents = events.filter((e) => e.status === "completed");
 
-  // If there's an active event, compute seats filled
-  let paidBookingsCount = 0;
-  let isSoldOut = false;
-  let isDeadlinePassed = false;
-  let spotsLeft = 0;
-
-  if (upcomingEvent) {
-    const eventBookings = await db.getBookingsByEventId(upcomingEvent.id);
-    paidBookingsCount = eventBookings.filter((b) => b.status === "paid").length;
-    isSoldOut = paidBookingsCount >= upcomingEvent.maxSlots;
-    isDeadlinePassed = new Date(upcomingEvent.deadline).getTime() < Date.now();
-    spotsLeft = upcomingEvent.maxSlots - paidBookingsCount;
-
-  }
+  // Compute booking data for each active event
+  const activeEventsWithData = await Promise.all(
+    activeEvents.map(async (event) => {
+      const eventBookings = await db.getBookingsByEventId(event.id);
+      const paidBookingsCount = eventBookings.filter((b) => b.status === "paid").length;
+      const isSoldOut = paidBookingsCount >= event.maxSlots;
+      const isDeadlinePassed = new Date(event.deadline).getTime() < Date.now();
+      const spotsLeft = event.maxSlots - paidBookingsCount;
+      return { event, paidBookingsCount, isSoldOut, isDeadlinePassed, spotsLeft };
+    })
+  );
 
   return (
     <main>
@@ -53,7 +50,7 @@ export default async function Home() {
 
 
             <div className="hero-actions">
-              {upcomingEvent ? (
+              {activeEvents.length > 0 ? (
                 <a href="#upcoming" className="btn btn-primary">
                   🎟️ Book Next Event
                 </a>
@@ -119,124 +116,114 @@ export default async function Home() {
             </p>
           </div>
 
-          {upcomingEvent ? (
-            <div className="featured-card">
-              <div className="featured-img-container">
-                <img src={upcomingEvent.image} alt={upcomingEvent.title} />
-                <span className="tag-status">Active Booking</span>
-                <span className="tag-spots">
-                  {upcomingEvent.maxSlots - paidBookingsCount} spots left
-                </span>
-              </div>
-
-              <div className="featured-content">
-
-
-                {/* <h3 className="featured-title">
-                  {upcomingEvent.title}
-                </h3>
-                <div style={{ display: "flex", alignItems: "left", gap: "10px", marginBottom: "12px" }}>
-                  <ShareButton event={upcomingEvent} />
-                </div> */}
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: "12px",
-                  }}
-                >
-                  <h3 className="featured-title" style={{ margin: 0 }}>
-                    {upcomingEvent.title}
-                  </h3>
-
-                  <ShareButton event={upcomingEvent} />
-                </div>
-
-
-                <p className="featured-description featured-description">{upcomingEvent.description}</p>
-
-                {/* Meta details list */}
-                <div className="meta-grid">
-                  <div className="meta-item">
-                    <div className="meta-icon">📅</div>
-                    <div className="meta-text">
-                      <h5>When</h5>
-                      <p>{upcomingEvent.date}</p>
-                      <p style={{ fontSize: "12px", fontWeight: "normal", color: "var(--text-muted)" }}>
-                        {upcomingEvent.time}
-                      </p>
-                    </div>
+          {activeEventsWithData.length > 0 ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: "40px" }}>
+              {activeEventsWithData.map(({ event, paidBookingsCount, isSoldOut, isDeadlinePassed, spotsLeft }) => (
+                <div key={event.id} className="featured-card">
+                  <div className="featured-img-container">
+                    <img src={event.image} alt={event.title} />
+                    <span className="tag-status">Active Booking</span>
+                    <span className="tag-spots">
+                      {event.maxSlots - paidBookingsCount} spots left
+                    </span>
                   </div>
 
-                  <div className="meta-item">
-                    <div className="meta-icon">📍</div>
-                    <div className="meta-text">
-                      <h5>Where</h5>
-                      <p>{upcomingEvent.location.split(",")[0]}</p>
-                      <p style={{ fontSize: "11px", fontWeight: "normal", color: "var(--text-muted)" }}>
-                        Exact venue details shared after booking
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="meta-item">
-                    <div className="meta-icon">💸</div>
-                    <div className="meta-text">
-                      <h5>Price</h5>
-                      <p>{formatCurrency(upcomingEvent.price)}</p>
-                    </div>
-                  </div>
-
-                  <div className="meta-item">
-                    <div className="meta-icon">🌸</div>
-                    <div className="meta-text">
-                      <h5>Includes</h5>
-                      <p>{(upcomingEvent.include ?? "Nothing that is not mentioned.")}</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Slots progress bar */}
-                <div className="slots-progress-wrapper">
-                  <div className="slots-label">
-                    <span>Community Spots Left</span>
-                    <span>Only {spotsLeft} spots remaining</span>
-                  </div>
-
-                  <div className="slots-progress-bar">
+                  <div className="featured-content">
                     <div
-                      className="slots-progress-fill"
                       style={{
-                        width: `${(paidBookingsCount / upcomingEvent.maxSlots) * 100}%`,
-                        // width: `${(spotsLeft / upcomingEvent.maxSlots) * 100}%`
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        marginBottom: "12px",
                       }}
-                    />
+                    >
+                      <h3 className="featured-title" style={{ margin: 0 }}>
+                        {event.title}
+                      </h3>
+                      <ShareButton event={event} />
+                    </div>
+
+                    <p className="featured-description">{event.description}</p>
+
+                    {/* Meta details list */}
+                    <div className="meta-grid">
+                      <div className="meta-item">
+                        <div className="meta-icon">📅</div>
+                        <div className="meta-text">
+                          <h5>When</h5>
+                          <p>{event.date}</p>
+                          <p style={{ fontSize: "12px", fontWeight: "normal", color: "var(--text-muted)" }}>
+                            {event.time}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="meta-item">
+                        <div className="meta-icon">📍</div>
+                        <div className="meta-text">
+                          <h5>Where</h5>
+                          <p>{event.location.split(",")[0]}</p>
+                          <p style={{ fontSize: "11px", fontWeight: "normal", color: "var(--text-muted)" }}>
+                            Exact venue details shared after booking
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="meta-item">
+                        <div className="meta-icon">💸</div>
+                        <div className="meta-text">
+                          <h5>Price</h5>
+                          <p>{formatCurrency(event.price)}</p>
+                        </div>
+                      </div>
+
+                      <div className="meta-item">
+                        <div className="meta-icon">🌸</div>
+                        <div className="meta-text">
+                          <h5>Includes</h5>
+                          <p>{event.include ?? "Nothing that is not mentioned."}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Slots progress bar */}
+                    <div className="slots-progress-wrapper">
+                      <div className="slots-label">
+                        <span>Community Spots Left</span>
+                        <span>Only {spotsLeft} spots remaining</span>
+                      </div>
+                      <div className="slots-progress-bar">
+                        <div
+                          className="slots-progress-fill"
+                          style={{ width: `${(paidBookingsCount / event.maxSlots) * 100}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Booking Deadline Live Countdown */}
+                    <Countdown deadline={event.deadline} />
+
+                    {/* CTA Action */}
+                    {isSoldOut ? (
+                      <button className="btn btn-disabled btn-full" style={{ width: "100%" }}>
+                        🚨 Fully Booked! Follow Instagram for Next Release
+                      </button>
+                    ) : isDeadlinePassed ? (
+                      <button className="btn btn-disabled btn-full" style={{ width: "100%" }}>
+                        ⌛ Booking Closed (Deadline Passed)
+                      </button>
+                    ) : (
+                      <Link
+                        href={`/checkout/${event.id}`}
+                        className="btn btn-primary"
+                        style={{ width: "100%", padding: "16px" }}
+                      >
+                        🎟️ Book My Spot Now
+                      </Link>
+                    )}
                   </div>
                 </div>
-
-                {/* Booking Deadline Live Countdown */}
-                <Countdown deadline={upcomingEvent.deadline} />
-
-                {/* CTA Action */}
-                {isSoldOut ? (
-                  <button className="btn btn-disabled btn-full" style={{ width: "100%" }}>
-                    🚨 Fully Booked! Follow Instagram for Next Release
-                  </button>
-                ) : isDeadlinePassed ? (
-                  <button className="btn btn-disabled btn-full" style={{ width: "100%" }}>
-                    ⌛ Booking Closed (Deadline Passed)
-                  </button>
-                ) : (
-                  <Link
-                    href={`/checkout/${upcomingEvent.id}`}
-                    className="btn btn-primary"
-                    style={{ width: "100%", padding: "16px" }}
-                  >
-                    🎟️ Book My Spot Now
-                  </Link>
-                )}
-              </div>
+              ))}
             </div>
           ) : (
             <div className="glass-card text-center" style={{ padding: "60px", maxWidth: "600px", margin: "0 auto" }}>

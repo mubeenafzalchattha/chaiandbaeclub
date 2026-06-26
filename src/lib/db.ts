@@ -12,6 +12,7 @@ export interface Event {
   maxSlots: number;
   image: string;      // Image URL or identifier
   status: "active" | "draft" | "completed";
+  createdAt?: string; // ISO string — when the event was first created
   instagramUrl?: string; // Link to past event instagram post
   include?: string[]; // Items included in the event
   exclude?: string[]; // Items excluded from the event
@@ -116,7 +117,8 @@ async function seedDb(db: Db) {
 export const db = {
   getEvents: async (): Promise<Event[]> => {
     const database = await getDb();
-    const items = await database.collection("events").find({}).toArray();
+    // Sort by createdAt descending (newest first); fall back to _id order for legacy docs
+    const items = await database.collection("events").find({}).sort({ createdAt: -1, _id: -1 }).toArray();
     return items.map(item => {
       const { _id, ...rest } = item;
       return rest as unknown as Event;
@@ -135,7 +137,10 @@ export const db = {
     const database = await getDb();
     await database.collection("events").updateOne(
       { id: event.id },
-      { $set: event },
+      {
+        $set: event,
+        $setOnInsert: { createdAt: new Date().toISOString() }
+      },
       { upsert: true }
     );
     return true;
@@ -159,7 +164,8 @@ export const db = {
 
   getBookings: async (): Promise<Booking[]> => {
     const database = await getDb();
-    const items = await database.collection("bookings").find({}).toArray();
+    // Newest bookings first
+    const items = await database.collection("bookings").find({}).sort({ createdAt: -1, _id: -1 }).toArray();
     return items.map(item => {
       const { _id, ...rest } = item;
       return rest as unknown as Booking;
@@ -168,7 +174,8 @@ export const db = {
 
   getBookingsByEventId: async (eventId: string): Promise<Booking[]> => {
     const database = await getDb();
-    const items = await database.collection("bookings").find({ eventId }).toArray();
+    // Newest bookings first
+    const items = await database.collection("bookings").find({ eventId }).sort({ createdAt: -1, _id: -1 }).toArray();
     return items.map(item => {
       const { _id, ...rest } = item;
       return rest as unknown as Booking;
