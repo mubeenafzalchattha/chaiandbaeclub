@@ -2,8 +2,8 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { formatCurrency, formatUaePhoneReadable, isFreeEvent, REFUND_POLICY } from "@/lib/utils";
-import { jsPDF } from "jspdf";
+import { formatUaePhoneReadable, isFreeEvent, REFUND_POLICY } from "@/lib/utils";
+import { downloadTicketPdf } from "@/lib/ticketPdf";
 
 function SuccessFallback() {
   return (
@@ -29,6 +29,7 @@ function SuccessContent() {
   const [event, setEvent] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     if (!bookingId) {
@@ -59,170 +60,17 @@ function SuccessContent() {
     fetchBookingDetails();
   }, [bookingId]);
 
-  const handleDownloadPDF = () => {
+  const handleDownloadPDF = async () => {
     if (!booking || !event) return;
-
-    const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a5" });
-    const W = 148, H = 210;
-
-    // ── Plain white background ──────────────────────────────────
-    doc.setFillColor(255, 255, 255);
-    doc.rect(0, 0, W, H, "F");
-
-    // ── Blush card ──────────────────────────────────────────────
-    doc.setFillColor(253, 242, 245);
-    doc.roundedRect(8, 8, W - 16, H - 16, 6, 6, "F");
-    doc.setDrawColor(240, 200, 210);
-    doc.setLineWidth(0.4);
-    doc.roundedRect(8, 8, W - 16, H - 16, 6, 6, "S");
-
-    const pad = 18;
-    let y = 22;
-
-    // ── Title ───────────────────────────────────────────────────
-    doc.setFont("Helvetica", "bold");
-    doc.setFontSize(17);
-    doc.setTextColor(162, 50, 80);
-    doc.text("Booking Confirmed", pad, y);
-    y += 6;
-
-    doc.setDrawColor(220, 180, 190);
-    doc.setLineWidth(0.3);
-    doc.line(pad, y, W - pad, y);
-    y += 10;
-
-    // ── Event image + title/date ────────────────────────────────
-    const imgSize = 22;
+    setDownloading(true);
     try {
-      doc.addImage(event.image, "JPEG", pad, y, imgSize, imgSize, undefined, "FAST");
-      doc.setDrawColor(220, 180, 190);
-      doc.setLineWidth(0.3);
-      doc.roundedRect(pad, y, imgSize, imgSize, 2, 2, "S");
-    } catch {
-      doc.setFillColor(245, 225, 232);
-      doc.roundedRect(pad, y, imgSize, imgSize, 2, 2, "F");
+      await downloadTicketPdf(booking, event);
+    } catch (err) {
+      console.error(err);
+      alert("Sorry, we couldn't generate your ticket PDF. Please try again.");
+    } finally {
+      setDownloading(false);
     }
-
-    const textX = pad + imgSize + 5;
-    doc.setFont("Helvetica", "bold");
-    doc.setFontSize(12);
-    doc.setTextColor(82, 50, 110);
-    doc.text(event.title, textX, y + 7);
-
-    doc.setFont("Helvetica", "normal");
-    doc.setFontSize(8.5);
-    doc.setTextColor(120, 100, 130);
-    doc.text(event.date, textX, y + 14);
-
-    y += imgSize + 12;
-
-    // ── Guest details ───────────────────────────────────────────
-    const detailRow = (labelTxt: string, valueTxt: string) => {
-      doc.setFont("Helvetica", "normal");
-      doc.setFontSize(9);
-      doc.setTextColor(80, 65, 95);
-      doc.text(labelTxt, pad, y);
-
-      doc.setFont("Helvetica", "bold");
-      doc.setFontSize(9);
-      doc.setTextColor(55, 35, 70);
-      doc.text(valueTxt, W - pad, y, { align: "right" });
-      y += 9;
-    };
-
-    detailRow("Guest", booking.name);
-    detailRow("WhatsApp", booking.whatsapp);
-    detailRow("Email", booking.email);
-    detailRow("Time", event.time);
-    y += 3;
-
-    // ── Dashed divider ──────────────────────────────────────────
-    doc.setDrawColor(200, 180, 210);
-    doc.setLineWidth(0.3);
-    let dx = pad;
-    while (dx < W - pad) {
-      doc.line(dx, y, Math.min(dx + 3, W - pad), y);
-      dx += 5;
-    }
-    y += 7;
-
-    // ── Total Paid ──────────────────────────────────────────────
-    doc.setFont("Helvetica", "bold");
-    doc.setFontSize(13);
-    doc.setTextColor(162, 50, 80);
-    doc.text("Total Paid", pad, y);
-    doc.text(isFreeEvent(event) ? "Free" : formatCurrency(event.price), W - pad, y, { align: "right" });
-    y += 14;
-
-    // ── Includes / Excludes ─────────────────────────────────────
-    const include = (event.include || []).filter(
-      (i: string) => i.toLowerCase() !== "food"
-    );
-    const exclude = (event.exclude || []).filter(
-      (i: string) => i.toLowerCase() !== "drink"
-    );
-
-    if (include.length > 0 || exclude.length > 0) {
-      const col1 = pad;
-      const col2 = W / 2 + 4;
-
-      doc.setFont("Helvetica", "bold");
-      doc.setFontSize(6.5);
-      doc.setTextColor(162, 135, 195);
-      if (include.length > 0) doc.text("INCLUDES", col1, y);
-      if (exclude.length > 0) doc.text("NOT INCLUDED", col2, y);
-      y += 5;
-
-      const maxRows = Math.max(include.length, exclude.length);
-      for (let i = 0; i < maxRows; i++) {
-        if (include[i]) {
-          doc.setFillColor(82, 130, 101);
-          doc.circle(col1 + 1.5, y - 1.2, 1.2, "F");
-          doc.setFont("Helvetica", "normal");
-          doc.setFontSize(8);
-          doc.setTextColor(42, 80, 55);
-          doc.text(include[i], col1 + 5, y);
-        }
-        if (exclude[i]) {
-          doc.setFillColor(224, 109, 125);
-          doc.circle(col2 + 1.5, y - 1.2, 1.2, "F");
-          doc.setFont("Helvetica", "normal");
-          doc.setFontSize(8);
-          doc.setTextColor(140, 70, 90);
-          doc.text(exclude[i], col2 + 5, y);
-        }
-        y += 6;
-      }
-    }
-
-    // ── Refund policy (paid events only) ────────────────────────
-    if (!isFreeEvent(event)) {
-      const policyY = Math.max(y + 2, H - 38);
-      doc.setFont("Helvetica", "bold");
-      doc.setFontSize(6.5);
-      doc.setTextColor(162, 50, 80);
-      doc.text("REFUND POLICY", pad, policyY);
-      doc.setFont("Helvetica", "normal");
-      doc.setFontSize(7.5);
-      doc.setTextColor(120, 100, 130);
-      doc.text(doc.splitTextToSize(REFUND_POLICY.short, W - pad * 2), pad, policyY + 4.5);
-    }
-
-    // ── Booking ID footer ───────────────────────────────────────
-    doc.setFont("Helvetica", "bold");
-    doc.setFontSize(7);
-    doc.setTextColor(162, 135, 195);
-    doc.text("BOOKING ID", pad, H - 18);
-    doc.setFontSize(9);
-    doc.setTextColor(82, 50, 110);
-    doc.text(booking.id, pad, H - 12);
-
-    doc.setFont("Helvetica", "normal");
-    doc.setFontSize(7);
-    doc.setTextColor(180, 150, 170);
-    doc.text("chaiandbae.qnchattha.com", W - pad, H - 12, { align: "right" });
-
-    doc.save(`chai_and_bae_booking_${booking.id}.pdf`);
   };
 
 
@@ -387,7 +235,7 @@ function SuccessContent() {
 
               {!isFreeEvent(event) && (
                 <div className="refund-note" style={{ marginTop: "18px" }}>
-                  <div className="refund-note-title">💌 {REFUND_POLICY.title}</div>
+                  <div className="refund-note-title">🚫 {REFUND_POLICY.headline}</div>
                   <p>{REFUND_POLICY.short} Message us on WhatsApp if your plans change.</p>
                 </div>
               )}
@@ -403,8 +251,8 @@ function SuccessContent() {
 
         {/* Action button row for download */}
         <div style={{ display: "flex", justifyContent: "center", gap: "16px", marginTop: "24px" }}>
-          <button onClick={handleDownloadPDF} className="btn btn-sage" style={{ padding: "12px 24px" }}>
-            📥 Download Ticket PDF
+          <button onClick={handleDownloadPDF} className="btn btn-sage" style={{ padding: "12px 24px" }} disabled={downloading}>
+            {downloading ? "Preparing your ticket..." : "📥 Download Ticket PDF"}
           </button>
         </div>
 

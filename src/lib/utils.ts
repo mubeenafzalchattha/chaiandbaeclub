@@ -119,6 +119,7 @@ export function isFreeEvent(event: { price: number }): boolean {
  */
 export const REFUND_POLICY = {
   title: "Refund Policy",
+  headline: "No refunds within 7 days of the event",
   short: "Refunds are only issued for cancellations made at least 7 days before the event.",
   details:
     "We plan every event around a small, cozy guest list, so each spot really counts. " +
