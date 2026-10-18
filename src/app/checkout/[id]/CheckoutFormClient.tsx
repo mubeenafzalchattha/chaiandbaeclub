@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { formatCurrency, validateUaePhone } from "@/lib/utils";
+import { formatCurrency, isFreeEvent, REFUND_POLICY, validateUaePhone } from "@/lib/utils";
 import { Event } from "@/lib/db";
 
 interface CheckoutFormClientProps {
@@ -16,6 +16,8 @@ export default function CheckoutFormClient({ event, spotsLeft }: CheckoutFormCli
   const [errors, setErrors] = useState<{ name?: string; email?: string; whatsapp?: string }>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const [showRefundNotice, setShowRefundNotice] = useState(false);
+  const isFree = isFreeEvent(event);
 
   // Clean and format UAE phone as they type: 5X XXX XXXX
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -70,12 +72,22 @@ export default function CheckoutFormClient({ event, spotsLeft }: CheckoutFormCli
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitError("");
 
     if (!validateForm()) return;
 
+    // Paid events: show the refund policy before handing off to the payment gateway
+    if (isFree) {
+      submitBooking();
+    } else {
+      setShowRefundNotice(true);
+    }
+  };
+
+  const submitBooking = async () => {
+    setShowRefundNotice(false);
     setSubmitting(true);
 
     try {
@@ -100,7 +112,7 @@ export default function CheckoutFormClient({ event, spotsLeft }: CheckoutFormCli
         throw new Error(data.message || "Failed to initiate payment. Please try again.");
       }
 
-      // Redirect to payment gateway URL (Ziina Live or simulator)
+      // Redirect to payment gateway URL (Ziina), or straight to the ticket for free events
       window.location.href = data.redirectUrl;
     } catch (err: any) {
       console.error(err);
@@ -116,8 +128,10 @@ export default function CheckoutFormClient({ event, spotsLeft }: CheckoutFormCli
         <div>
           <h2 className="checkout-form-title">Secure Event Booking</h2>
           <p style={{ color: "var(--text-muted)", fontSize: "14px", marginBottom: "30px", lineHeight: "1.5" }}>
-            Hey baddie! Enter your details below to secure your spot for the **{event.title}**. 
-            Payments are securely processed via Ziina.
+            Hey baddie! Enter your details below to secure your spot for the <strong>{event.title}</strong>.{" "}
+            {isFree
+              ? "This one is on us, no payment needed. Your ticket is generated instantly."
+              : "Payments are securely processed via Ziina."}
           </p>
 
           {submitError && (
@@ -204,7 +218,7 @@ export default function CheckoutFormClient({ event, spotsLeft }: CheckoutFormCli
             >
               {submitting ? (
                 <>
-                  Processing Secure Checkout
+                  {isFree ? "Reserving Your Spot" : "Processing Secure Checkout"}
                   <span className="loader-dots">
                     <span className="loader-dot"></span>
                     <span className="loader-dot"></span>
@@ -212,7 +226,7 @@ export default function CheckoutFormClient({ event, spotsLeft }: CheckoutFormCli
                   </span>
                 </>
               ) : (
-                "💳 Secure Checkout via Ziina"
+                isFree ? "🎟️ Reserve My Free Spot" : "💳 Secure Checkout via Ziina"
               )}
             </button>
           </form>
@@ -240,7 +254,7 @@ export default function CheckoutFormClient({ event, spotsLeft }: CheckoutFormCli
 
           <div className="summary-item">
             <span>Ticket Price (1 Spot)</span>
-            <span>{formatCurrency(event.price)}</span>
+            <span>{isFree ? "Free" : formatCurrency(event.price)}</span>
           </div>
 
           <div className="summary-item">
@@ -250,19 +264,55 @@ export default function CheckoutFormClient({ event, spotsLeft }: CheckoutFormCli
 
           <div className="summary-total">
             <span>Total to Pay</span>
-            <span>{formatCurrency(event.price)}</span>
+            <span>{isFree ? "Free 🎉" : formatCurrency(event.price)}</span>
           </div>
+
+          {!isFree && (
+            <div className="refund-note">
+              <div className="refund-note-title">💌 {REFUND_POLICY.title}</div>
+              <p>{REFUND_POLICY.short}</p>
+            </div>
+          )}
 
           <div style={{ background: "rgba(255, 255, 255, 0.6)", borderRadius: "8px", padding: "12px", marginTop: "24px", border: "1px solid rgba(224, 109, 125, 0.1)" }}>
             <div style={{ fontSize: "11px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.5px", color: "var(--accent-sage-dark)", display: "flex", alignItems: "center", gap: "4px" }}>
               🔒 SECURE TRANSACTION
             </div>
             <p style={{ fontSize: "11px", color: "var(--text-muted)", lineHeight: "1.4", marginTop: "4px" }}>
-              Your reservation is held as pending for 10 minutes. Exact venue coordinates in Dubai will be shared upon payment verification.
+              {isFree
+                ? "Your spot is confirmed instantly. Exact venue details will be shared on WhatsApp before the event."
+                : "Your reservation is held as pending for 10 minutes. Exact venue coordinates in Dubai will be shared upon payment verification."}
             </p>
           </div>
         </div>
       </div>
+
+      {showRefundNotice && (
+        <div
+          className="refund-modal-backdrop"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="refund-modal-title"
+          onClick={() => setShowRefundNotice(false)}
+        >
+          <div className="refund-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="refund-modal-icon">🌸</div>
+            <h3 id="refund-modal-title" className="refund-modal-title">One little note before you pay</h3>
+            <p className="refund-modal-text">{REFUND_POLICY.details}</p>
+            <div className="refund-modal-highlight">
+              ✓ {REFUND_POLICY.short}
+            </div>
+            <div className="refund-modal-actions">
+              <button type="button" className="btn btn-primary" onClick={submitBooking}>
+                I understand, continue to payment
+              </button>
+              <button type="button" className="btn btn-secondary" onClick={() => setShowRefundNotice(false)}>
+                Go back
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

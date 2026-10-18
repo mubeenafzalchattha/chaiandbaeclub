@@ -106,3 +106,22 @@ export function generateBookingId(): string {
   }
   return result;
 }
+
+/**
+ * Free events skip the payment gateway entirely and get a ticket immediately.
+ */
+export function isFreeEvent(event: { price: number }): boolean {
+  return !event.price || Number(event.price) <= 0;
+}
+
+/**
+ * Refund policy copy, shared by the checkout notice and the ticket (web + PDF).
+ */
+export const REFUND_POLICY = {
+  title: "Refund Policy",
+  short: "Refunds are only issued for cancellations made at least 7 days before the event.",
+  details:
+    "We plan every event around a small, cozy guest list, so each spot really counts. " +
+    "If your plans change, just message us on WhatsApp at least 7 days before the event and we'll happily process your refund. " +
+    "Within 7 days of the event, tickets are non-refundable.",
+};

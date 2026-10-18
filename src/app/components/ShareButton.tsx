@@ -9,7 +9,8 @@ export default function ShareButton({ event }: { event: any }) {
     const shareData = {
       title: event.title,
       text: `Chai and Bae presents you all girls event: ${event.title}`,
-      url: `${process.env.NEXT_PUBLIC_BASE_URL || window.location.origin}/#upcoming`,
+      // ?event= drives the per-event link preview (image/title); the hash scrolls to the card
+      url: `${process.env.NEXT_PUBLIC_BASE_URL || window.location.origin}/?event=${encodeURIComponent(event.id)}#event-${event.id}`,
     };
     if (navigator.share) {
       navigator.share(shareData).catch(console.error);

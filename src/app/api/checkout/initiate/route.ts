@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { generateBookingId, validateUaePhone } from "@/lib/utils";
+import { generateBookingId, isFreeEvent, validateUaePhone } from "@/lib/utils";
 
 export async function POST(req: NextRequest) {
   try {
@@ -52,20 +52,32 @@ export async function POST(req: NextRequest) {
     // 5. Generate secure booking ID
     const bookingId = generateBookingId();
 
-    // 6. Record pending booking in the JSON DB
+    const isFree = isFreeEvent(event);
+
+    // 6. Record the booking. Free events are confirmed immediately (no payment step).
     const success = await db.createBooking({
       id: bookingId,
       eventId,
       name,
       email,
       whatsapp,
-      status: "pending",
+      status: isFree ? "paid" : "pending",
       createdAt: new Date().toISOString(),
-      amount: event.price
+      amount: isFree ? 0 : event.price,
+      ...(isFree ? { paymentId: "free_" + Date.now().toString() } : {})
     });
 
     if (!success) {
       throw new Error("Unable to save pending transaction.");
+    }
+
+    // 7. Free events: skip Ziina and go straight to the ticket
+    if (isFree) {
+      return NextResponse.json({
+        success: true,
+        bookingId,
+        redirectUrl: `/checkout/success?bookingId=${bookingId}`
+      });
     }
 
     let redirectUrl = "";

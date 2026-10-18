@@ -41,7 +41,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: "All required event parameters are required." }, { status: 400 });
     }
 
-    const eventId = id || title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+    // New events get a slug from the title. Recurring events reuse the same title, so
+    // add a numeric suffix to avoid overwriting (and stealing bookings from) an older event.
+    let eventId = id;
+    if (!eventId) {
+      const baseSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "event";
+      eventId = baseSlug;
+      let suffix = 2;
+      while (await db.getEventById(eventId)) {
+        eventId = `${baseSlug}-${suffix++}`;
+      }
+    }
 
     const eventObj = {
       id: eventId,

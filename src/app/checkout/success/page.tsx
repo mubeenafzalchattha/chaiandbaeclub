@@ -2,7 +2,7 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { formatCurrency, formatUaePhoneReadable } from "@/lib/utils";
+import { formatCurrency, formatUaePhoneReadable, isFreeEvent, REFUND_POLICY } from "@/lib/utils";
 import { jsPDF } from "jspdf";
 
 function SuccessFallback() {
@@ -151,7 +151,7 @@ function SuccessContent() {
     doc.setFontSize(13);
     doc.setTextColor(162, 50, 80);
     doc.text("Total Paid", pad, y);
-    doc.text(formatCurrency(event.price), W - pad, y, { align: "right" });
+    doc.text(isFreeEvent(event) ? "Free" : formatCurrency(event.price), W - pad, y, { align: "right" });
     y += 14;
 
     // ── Includes / Excludes ─────────────────────────────────────
@@ -193,6 +193,19 @@ function SuccessContent() {
         }
         y += 6;
       }
+    }
+
+    // ── Refund policy (paid events only) ────────────────────────
+    if (!isFreeEvent(event)) {
+      const policyY = Math.max(y + 2, H - 38);
+      doc.setFont("Helvetica", "bold");
+      doc.setFontSize(6.5);
+      doc.setTextColor(162, 50, 80);
+      doc.text("REFUND POLICY", pad, policyY);
+      doc.setFont("Helvetica", "normal");
+      doc.setFontSize(7.5);
+      doc.setTextColor(120, 100, 130);
+      doc.text(doc.splitTextToSize(REFUND_POLICY.short, W - pad * 2), pad, policyY + 4.5);
     }
 
     // ── Booking ID footer ───────────────────────────────────────
@@ -253,8 +266,9 @@ function SuccessContent() {
           <div style={{ fontSize: "60px", animation: "float 4s infinite ease-in-out" }}>✨🌸✨</div>
           <h2 className="section-title" style={{ marginTop: "12px" }}>See you there, baddie!</h2>
           <p className="section-desc" style={{ marginBottom: "0" }}>
-            Your transaction has been securely processed by Ziina. Your physical reservation
-            for the club event is officially confirmed!
+            {isFreeEvent(event)
+              ? "Your free spot is reserved and your reservation for the club event is officially confirmed!"
+              : "Your transaction has been securely processed by Ziina. Your physical reservation for the club event is officially confirmed!"}
           </p>
         </div>
 
@@ -366,15 +380,22 @@ function SuccessContent() {
                   <h5>Whats Included</h5>
 
                   <p style={{ fontSize: "11px", color: "var(--accent-sage-dark)", fontWeight: "600", marginTop: "2px", lineHeight: "1.3" }}>
-                    {event.included}
+                    {(event.include || []).join(", ") || "Nothing that is not mentioned."}
                   </p>
                 </div>
               </div>
 
+              {!isFreeEvent(event) && (
+                <div className="refund-note" style={{ marginTop: "18px" }}>
+                  <div className="refund-note-title">💌 {REFUND_POLICY.title}</div>
+                  <p>{REFUND_POLICY.short} Message us on WhatsApp if your plans change.</p>
+                </div>
+              )}
+
               {/* Secure Stamp */}
               <div className="ticket-stamp">
                 ✓ SECURED
-                <span>ZIINA LEDGER</span>
+                <span>{isFreeEvent(event) ? "FREE ENTRY" : "ZIINA LEDGER"}</span>
               </div>
             </div>
           </div>

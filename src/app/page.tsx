@@ -3,10 +3,47 @@ export const revalidate = 0;
 
 import Link from "next/link";
 import { db } from "@/lib/db";
-import { formatCurrency } from "@/lib/utils";
+import type { Metadata } from "next";
+import { formatCurrency, isFreeEvent } from "@/lib/utils";
 import Countdown from "./components/Countdown";
 import heroImage from "./assets/hero.jpg";
 import ShareButton from "./components/ShareButton";
+
+interface HomeProps {
+  searchParams: Promise<{ event?: string | string[] }>;
+}
+
+// When a specific event is shared (/?event=<id>), use that event's image and
+// details for the link preview instead of the site-wide OG image.
+export async function generateMetadata({ searchParams }: HomeProps): Promise<Metadata> {
+  const { event: eventParam } = await searchParams;
+  const eventId = Array.isArray(eventParam) ? eventParam[0] : eventParam;
+  if (!eventId) return {};
+
+  const event = await db.getEventById(eventId);
+  if (!event) return {};
+
+  const title = `${event.title} | Chai & Bae Club`;
+  const description = `${event.date} • ${event.time} • ${event.location.split(",")[0]}. ${event.description}`.slice(0, 200);
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      locale: "en_AE",
+      type: "website",
+      images: [{ url: event.image, alt: event.title }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [event.image],
+    },
+  };
+}
 
 export default async function Home() {
   const events = await db.getEvents();
@@ -118,8 +155,12 @@ export default async function Home() {
 
           {activeEventsWithData.length > 0 ? (
             <div style={{ display: "flex", flexDirection: "column", gap: "40px" }}>
-              {activeEventsWithData.map(({ event, paidBookingsCount, isSoldOut, isDeadlinePassed, spotsLeft }) => (
-                <div key={event.id} className="featured-card">
+              {activeEventsWithData.map(({ event, paidBookingsCount, isSoldOut, isDeadlinePassed, spotsLeft }, index) => (
+                <div
+                  key={event.id}
+                  id={`event-${event.id}`}
+                  className={`featured-card${index % 2 === 1 ? " featured-card-flipped" : ""}`}
+                >
                   <div className="featured-img-container">
                     <img src={event.image} alt={event.title} />
                     <span className="tag-status">Active Booking</span>
@@ -173,7 +214,7 @@ export default async function Home() {
                         <div className="meta-icon">💸</div>
                         <div className="meta-text">
                           <h5>Price</h5>
-                          <p>{formatCurrency(event.price)}</p>
+                          <p>{isFreeEvent(event) ? "Free 🎉" : formatCurrency(event.price)}</p>
                         </div>
                       </div>
 
@@ -218,7 +259,7 @@ export default async function Home() {
                         className="btn btn-primary"
                         style={{ width: "100%", padding: "16px" }}
                       >
-                        🎟️ Book My Spot Now
+                        {isFreeEvent(event) ? "🎟️ Reserve My Free Spot" : "🎟️ Book My Spot Now"}
                       </Link>
                     )}
                   </div>

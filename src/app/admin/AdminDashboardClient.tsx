@@ -39,6 +39,8 @@ export default function AdminDashboardClient({ initialEvents, initialBookings }:
   const [instagramUrl, setInstagramUrl] = useState("");
   const [status, setStatus] = useState<"active" | "draft" | "completed">("active");
   const [uploading, setUploading] = useState(false);
+  // Title of the event being repeated, shown as a hint on the form
+  const [duplicatedFrom, setDuplicatedFrom] = useState("");
   
   const [formLoading, setFormLoading] = useState(false);
   const [formSuccess, setFormSuccess] = useState("");
@@ -217,18 +219,7 @@ export default function AdminDashboardClient({ initialEvents, initialBookings }:
       setFormSuccess(`Event "${title}" saved successfully!`);
       
       // Reset form
-      setEventId("");
-      setTitle("");
-      setDescription("");
-      setEventDate("");
-      setEventTime("");
-      setLocation("");
-      setPrice(150);
-      setDeadline("");
-      setMaxSlots(15);
-      setImage(IMAGE_PRESETS[0].url);
-      setInstagramUrl("");
-      setStatus("active");
+      resetForm();
       
       // Switch back to events tab
       setTimeout(() => {
@@ -243,8 +234,47 @@ export default function AdminDashboardClient({ initialEvents, initialBookings }:
     }
   };
 
+  // Clears the create/edit form back to defaults
+  const resetForm = () => {
+    setEventId("");
+    setTitle("");
+    setDescription("");
+    setEventDate("");
+    setEventTime("");
+    setLocation("");
+    setPrice(150);
+    setDeadline("");
+    setMaxSlots(15);
+    setImage(IMAGE_PRESETS[0].url);
+    setInstagramUrl("");
+    setStatus("active");
+    setInclude("");
+    setExclude("");
+    setDuplicatedFrom("");
+  };
+
+  // Repeat Event trigger: copies an old event into a NEW event form.
+  // Dates and deadline are cleared so staff only fill in what changes.
+  const handleDuplicateTrigger = (event: Event) => {
+    resetForm();
+    setTitle(event.title);
+    setDescription(event.description);
+    setEventTime(event.time);
+    setLocation(event.location);
+    setPrice(event.price);
+    setMaxSlots(event.maxSlots);
+    setImage(event.image);
+    setInclude(event.include ? event.include.join('\n') : "");
+    setExclude(event.exclude ? event.exclude.join('\n') : "");
+    setDuplicatedFrom(event.title);
+    setFormError("");
+    setFormSuccess("");
+    setActiveTab("create-event");
+  };
+
   // Edit Event trigger: populates create tab with current details
   const handleEditTrigger = (event: Event) => {
+    setDuplicatedFrom("");
     setEventId(event.id);
     setTitle(event.title);
     setDescription(event.description);
@@ -268,6 +298,16 @@ export default function AdminDashboardClient({ initialEvents, initialBookings }:
     setExclude(event.exclude ? event.exclude.join('\n') : "");
     setActiveTab("create-event");
   };
+
+  // Unique banner images from existing events (newest first), for reuse on new events
+  const previousImages = [...events]
+    .sort((a, b) => new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime())
+    .reduce<{ url: string; label: string }[]>((acc, ev) => {
+      if (ev.image && !acc.some((img) => img.url === ev.image)) {
+        acc.push({ url: ev.image, label: ev.title });
+      }
+      return acc;
+    }, []);
 
   // Filter Bookings List (newest first)
   const filteredBookings = bookings
@@ -338,8 +378,10 @@ export default function AdminDashboardClient({ initialEvents, initialBookings }:
             </button>
             <button
               onClick={() => {
-                // Clear any edits
-                setEventId("");
+                // Start from a blank form
+                resetForm();
+                setFormError("");
+                setFormSuccess("");
                 setActiveTab("create-event");
               }}
               className={`btn admin-nav-item ${activeTab === "create-event" ? "active" : ""}`}
@@ -616,6 +658,15 @@ export default function AdminDashboardClient({ initialEvents, initialBookings }:
                     >
                       ✏️ Edit Event
                     </button>
+
+                    <button
+                      onClick={() => handleDuplicateTrigger(e)}
+                      className="btn btn-secondary"
+                      style={{ padding: "8px 16px", fontSize: "12px" }}
+                      title="Create a new event pre-filled with this event's details"
+                    >
+                      🔁 Repeat Event
+                    </button>
                     
                     <button
                       onClick={() => handleDeleteEvent(e.id)}
@@ -635,12 +686,18 @@ export default function AdminDashboardClient({ initialEvents, initialBookings }:
         {activeTab === "create-event" && (
           <section className="glass-card" style={{ background: "var(--bg-white)", padding: "32px", maxWidth: "800px" }}>
             <h3 style={{ fontSize: "20px", marginBottom: "6px", fontFamily: "var(--font-serif)" }}>
-              {eventId ? "Modify Event Details" : "Schedule New All-Girls Event"}
+              {eventId ? "Modify Event Details" : duplicatedFrom ? "Repeat Event" : "Schedule New All-Girls Event"}
             </h3>
             <p style={{ color: "var(--text-muted)", fontSize: "13px", marginBottom: "30px" }}>
               Fill in the parameters below. Standard defaults are pre-configured. Making an event active will 
               automatically archive any previous event to completion status.
             </p>
+
+            {duplicatedFrom && !eventId && (
+              <div style={{ background: "var(--accent-pink-light)", border: "1px solid var(--accent-pink-soft)", color: "var(--accent-berry)", padding: "12px 16px", borderRadius: "8px", fontSize: "13px", marginBottom: "24px", lineHeight: "1.5" }}>
+                🔁 Copied from <strong>{duplicatedFrom}</strong>. Set the new <strong>date</strong> and <strong>booking deadline</strong>, tweak anything else, then save. This creates a new event and the original stays untouched.
+              </div>
+            )}
 
             {formSuccess && (
               <div style={{ background: "#D4EFDF", border: "1px solid #A9DFBF", color: "#196F3D", padding: "12px 16px", borderRadius: "8px", fontSize: "13px", fontWeight: "600", marginBottom: "24px" }}>
@@ -764,6 +821,30 @@ export default function AdminDashboardClient({ initialEvents, initialBookings }:
                 />
                 {uploading && <p style={{ fontSize: "11px", color: "var(--accent-pink-main)", marginTop: "4px" }}>Uploading image... Please wait.</p>}
                 
+                {previousImages.length > 0 && (
+                  <div style={{ marginTop: "12px" }}>
+                    <p style={{ fontSize: "11px", color: "var(--text-muted)", marginBottom: "6px" }}>
+                      Or reuse an image from a previous event:
+                    </p>
+                    <div className="admin-image-picker">
+                      {previousImages.map((img) => (
+                        <button
+                          key={img.url}
+                          type="button"
+                          onClick={() => setImage(img.url)}
+                          className={`admin-image-option${image === img.url ? " selected" : ""}`}
+                          title={img.label}
+                          aria-label={`Use image from ${img.label}`}
+                          aria-pressed={image === img.url}
+                          disabled={uploading || formLoading}
+                        >
+                          <img src={img.url} alt={img.label} />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {image && (
                   <div style={{ marginTop: "12px" }}>
                     <p style={{ fontSize: "11px", color: "var(--text-muted)" }}>Current Banner Preview:</p>
@@ -836,8 +917,7 @@ export default function AdminDashboardClient({ initialEvents, initialBookings }:
                   type="button"
                   onClick={() => {
                     setActiveTab("events");
-                    setEventId("");
-                    setInstagramUrl("");
+                    resetForm();
                   }}
                   className="btn btn-secondary"
                   style={{ padding: "14px 28px" }}
